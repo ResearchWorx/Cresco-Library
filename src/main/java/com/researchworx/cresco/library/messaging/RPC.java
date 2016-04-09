@@ -22,7 +22,7 @@ public class RPC {
         this.plugin = plugin;
     }
 
-    public MsgEvent call(MsgEvent me) {
+    public MsgEvent send(MsgEvent me) {
         try {
             String callId = java.util.UUID.randomUUID().toString();
             me.setParam("callId-" + this.region + "-" + this.agent + "-" + this.plugin, callId);
