@@ -2,7 +2,6 @@ package com.researchworx.cresco.library.core;
 
 import com.researchworx.cresco.library.messaging.MsgEvent;
 import com.researchworx.cresco.library.utilities.CLogger;
-import org.apache.commons.configuration2.SubnodeConfiguration;
 
 import java.util.Timer;
 import java.util.TimerTask;

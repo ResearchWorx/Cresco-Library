@@ -1,23 +1,17 @@
 package com.researchworx.cresco.library.core;
 
-import org.apache.commons.configuration2.INIConfiguration;
-import org.apache.commons.configuration2.SubnodeConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-
-import java.io.File;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.apache.commons.configuration.SubnodeConfiguration;
 
 public class Config {
-    private INIConfiguration iniConfObj;
+    private HierarchicalINIConfiguration iniConfObj;
     private SubnodeConfiguration subConfObj;
 
     public Config(String configFile) throws ConfigurationException {
-        Parameters params = new Parameters();
-        File iniFile = new File(configFile);
-        FileBasedConfigurationBuilder<INIConfiguration> builder = new FileBasedConfigurationBuilder<>(INIConfiguration.class).configure(params.hierarchical().setFile(iniFile));
-        builder.setAutoSave(true);
-        this.iniConfObj = builder.getConfiguration();
+        this.iniConfObj = new HierarchicalINIConfiguration(configFile);
+        this.iniConfObj.setDelimiterParsingDisabled(true);
+        this.iniConfObj.setAutoSave(true);
     }
 
     public Config (SubnodeConfiguration config) {
@@ -39,10 +33,14 @@ public class Config {
         return this.iniConfObj.getSection(group).getBoolean(param);
     }
     public Boolean getBooleanParam(String group, String param, Boolean ifNull) {
-        Boolean ret = getBooleanParam(group, param);
-        if (ret != null)
-            return ret;
-        return ifNull;
+        try {
+            Boolean ret = getBooleanParam(group, param);
+            if (ret != null)
+                return ret;
+            return ifNull;
+        } catch (NullPointerException e) {
+            return getBooleanParam(param, ifNull);
+        }
     }
 
     public Double getDoubleParam(String param) {
@@ -60,10 +58,14 @@ public class Config {
         return iniConfObj.getSection(group).getDouble(param);
     }
     public Double getDoubleParam(String group, String param, Double ifNull) {
-        Double ret = getDoubleParam(group, param);
-        if (ret != null)
-            return ret;
-        return ifNull;
+        try {
+            Double ret = getDoubleParam(group, param);
+            if (ret != null)
+                return ret;
+            return ifNull;
+        } catch (NullPointerException e) {
+            return getDoubleParam(param, ifNull);
+        }
     }
 
     public Integer getIntegerParam(String param) {
@@ -81,10 +83,14 @@ public class Config {
         return iniConfObj.getSection(group).getInt(param);
     }
     public Integer getIntegerParam(String group, String param, Integer ifNull) {
-        Integer ret = getIntegerParam(group, param);
-        if (ret != null)
-            return ret;
-        return ifNull;
+        try {
+            Integer ret = getIntegerParam(group, param);
+            if (ret != null)
+                return ret;
+            return ifNull;
+        } catch (NullPointerException e) {
+            return getIntegerParam(param, ifNull);
+        }
     }
 
     public Long getLongParam(String param) {
@@ -102,10 +108,14 @@ public class Config {
         return iniConfObj.getSection(group).getLong(param);
     }
     public Long getLongParam(String group, String param, Long ifNull) {
-        Long ret = getLongParam(group, param);
-        if (ret != null)
-            return ret;
-        return ifNull;
+        try {
+            Long ret = getLongParam(group, param);
+            if (ret != null)
+                return ret;
+            return ifNull;
+        } catch (NullPointerException e) {
+            return getLongParam(param, ifNull);
+        }
     }
 
     public String getStringParam(String param) {
