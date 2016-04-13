@@ -16,14 +16,14 @@ public class CLogger {
     private String agent;
     private String plugin;
     private Level level;
-    private ConcurrentLinkedQueue<MsgEvent> msgQueue;
+    private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
 
-    public CLogger(ConcurrentLinkedQueue<MsgEvent> msgQueue, String region, String agent, String plugin) {
+    public CLogger(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
         this.region = region;
         this.agent = agent;
         this.plugin = plugin;
         this.level = Level.Info;
-        this.msgQueue = msgQueue;
+        this.msgOutQueue = msgOutQueue;
     }
 
     public CLogger(ConcurrentLinkedQueue<MsgEvent> msgQueue, String region, String agent, String plugin, Level level) {
@@ -31,7 +31,7 @@ public class CLogger {
         this.agent = agent;
         this.plugin = plugin;
         this.level = level;
-        this.msgQueue = msgQueue;
+        this.msgOutQueue = msgQueue;
     }
 
     public void info(String logMessage) {
@@ -86,11 +86,11 @@ public class CLogger {
             }
         }
         me.setParam("dst_region", region);
-        msgQueue.offer(me);
+        this.msgOutQueue.offer(me);
     }
 
     public void log(MsgEvent me) {
-        msgQueue.offer(me);
+        this.msgOutQueue.offer(me);
     }
 
     public MsgEvent getLog(String logMessage) {
@@ -126,7 +126,7 @@ public class CLogger {
             }
         }
         ee.setParam("dst_region", region);
-        msgQueue.offer(ee);
+        this.msgOutQueue.offer(ee);
     }
 
     public MsgEvent getError(String ErrorMessage) {

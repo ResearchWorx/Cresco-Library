@@ -7,26 +7,26 @@ import java.util.concurrent.ConcurrentMap;
 
 public class RPC {
     private CLogger logger;
-    private ConcurrentLinkedQueue<MsgEvent> msgQueue;
+    private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
     private ConcurrentMap<String, MsgEvent> rpcMap;
     private String region;
     private String agent;
     private String plugin;
 
-    public RPC(ConcurrentLinkedQueue<MsgEvent> msgQueue, ConcurrentMap<String, MsgEvent> rpcMap, String region, String agent, String plugin, CLogger logger) {
+    public RPC(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, ConcurrentMap<String, MsgEvent> rpcMap, String region, String agent, String plugin, CLogger logger) {
         this.logger = logger;
-        this.msgQueue = msgQueue;
+        this.msgOutQueue = msgOutQueue;
         this.rpcMap = rpcMap;
         this.region = region;
         this.agent = agent;
         this.plugin = plugin;
     }
 
-    public MsgEvent send(MsgEvent me) {
+    public MsgEvent call(MsgEvent me) {
         try {
             String callId = java.util.UUID.randomUUID().toString();
             me.setParam("callId-" + this.region + "-" + this.agent + "-" + this.plugin, callId);
-            this.msgQueue.offer(me);
+            this.msgOutQueue.offer(me);
 
             int count = 0;
             int timeout = 300;
