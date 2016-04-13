@@ -5,8 +5,8 @@ import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 public class Config {
-    private HierarchicalINIConfiguration iniConfObj;
-    private SubnodeConfiguration subConfObj;
+    protected HierarchicalINIConfiguration iniConfObj;
+    protected SubnodeConfiguration subConfObj;
 
     public Config(String configFile) throws ConfigurationException {
         this.iniConfObj = new HierarchicalINIConfiguration(configFile);
