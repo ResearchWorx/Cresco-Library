@@ -14,8 +14,8 @@ public class Config {
         this.iniConfObj.setAutoSave(true);
     }
 
-    public Config (SubnodeConfiguration config) {
-        this.subConfObj = config;
+    public Config (SubnodeConfiguration pluginConfig) {
+        this.subConfObj = pluginConfig;
     }
 
     public Boolean getBooleanParam(String param) {
@@ -125,5 +125,12 @@ public class Config {
     }
     public String getStringParam(String group, String param) {
         return iniConfObj.getSection(group).getString(param);
+    }
+
+    protected HierarchicalINIConfiguration getConfig() {
+        return this.iniConfObj;
+    }
+    protected SubnodeConfiguration getPluginConfig() {
+        return this.subConfObj;
     }
 }
