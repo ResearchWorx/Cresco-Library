@@ -4,24 +4,47 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
-public class Config {
-    protected HierarchicalINIConfiguration iniConfObj;
-    protected SubnodeConfiguration subConfObj;
+import java.util.NoSuchElementException;
 
-    public Config(String configFile) throws ConfigurationException {
-        this.iniConfObj = new HierarchicalINIConfiguration(configFile);
-        this.iniConfObj.setDelimiterParsingDisabled(true);
-        this.iniConfObj.setAutoSave(true);
+/**
+ * Configuration handler for Cresco framework
+ * @author V.K. Cody Bumgardner
+ * @author Caylin Hickey
+ * @version 0.2.7
+ */
+public class Config {
+    /** Agent configuration object */
+    protected HierarchicalINIConfiguration agentConfObj;
+    /** Plugin configuration object */
+    protected SubnodeConfiguration pluginConfObj;
+
+    /**
+     * Agent constructor
+     * @param agentConfig               Path to the agent configuration file
+     * @throws ConfigurationException   Exception loading the configuration file
+     */
+    public Config(String agentConfig) throws ConfigurationException {
+        this.agentConfObj = new HierarchicalINIConfiguration(agentConfig);
+        this.agentConfObj.setDelimiterParsingDisabled(true);
+        this.agentConfObj.setAutoSave(true);
     }
 
+    /**
+     * Plugin constructor
+     * @param pluginConfig              Plugin configuration object
+     */
     public Config (SubnodeConfiguration pluginConfig) {
-        this.subConfObj = pluginConfig;
+        this.pluginConfObj = pluginConfig;
     }
 
     public Boolean getBooleanParam(String param) {
-        if (this.iniConfObj != null)
-            return this.iniConfObj.getBoolean(param);
-        return this.subConfObj.getBoolean(param);
+        try {
+            if (this.agentConfObj != null)
+                return this.agentConfObj.getBoolean(param);
+            return this.pluginConfObj.getBoolean(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Boolean getBooleanParam(String param, Boolean ifNull) {
         Boolean ret = getBooleanParam(param);
@@ -30,7 +53,11 @@ public class Config {
         return ifNull;
     }
     public Boolean getBooleanParam(String group, String param) {
-        return this.iniConfObj.getSection(group).getBoolean(param);
+        try {
+            return this.agentConfObj.getSection(group).getBoolean(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Boolean getBooleanParam(String group, String param, Boolean ifNull) {
         try {
@@ -44,9 +71,13 @@ public class Config {
     }
 
     public Double getDoubleParam(String param) {
-        if (this.iniConfObj != null)
-            return this.iniConfObj.getDouble(param);
-        return this.subConfObj.getDouble(param);
+        try {
+            if (this.agentConfObj != null)
+                return this.agentConfObj.getDouble(param);
+            return this.pluginConfObj.getDouble(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Double getDoubleParam(String param, Double ifNull) {
         Double ret = getDoubleParam(param);
@@ -55,7 +86,11 @@ public class Config {
         return ifNull;
     }
     public Double getDoubleParam(String group, String param) {
-        return iniConfObj.getSection(group).getDouble(param);
+        try {
+            return agentConfObj.getSection(group).getDouble(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Double getDoubleParam(String group, String param, Double ifNull) {
         try {
@@ -69,9 +104,13 @@ public class Config {
     }
 
     public Integer getIntegerParam(String param) {
-        if (this.iniConfObj != null)
-            return this.iniConfObj.getInt(param);
-        return this.subConfObj.getInt(param);
+        try {
+            if (this.agentConfObj != null)
+                return this.agentConfObj.getInt(param);
+            return this.pluginConfObj.getInt(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Integer getIntegerParam(String param, Integer ifNull) {
         Integer ret = getIntegerParam(param);
@@ -80,7 +119,11 @@ public class Config {
         return ifNull;
     }
     public Integer getIntegerParam(String group, String param) {
-        return iniConfObj.getSection(group).getInt(param);
+        try {
+            return agentConfObj.getSection(group).getInt(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Integer getIntegerParam(String group, String param, Integer ifNull) {
         try {
@@ -94,9 +137,13 @@ public class Config {
     }
 
     public Long getLongParam(String param) {
-        if (this.iniConfObj != null)
-            return this.iniConfObj.getLong(param);
-        return this.subConfObj.getLong(param);
+        try {
+            if (this.agentConfObj != null)
+                return this.agentConfObj.getLong(param);
+            return this.pluginConfObj.getLong(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Long getLongParam(String param, Long ifNull) {
         Long ret = getLongParam(param);
@@ -105,7 +152,11 @@ public class Config {
         return ifNull;
     }
     public Long getLongParam(String group, String param) {
-        return iniConfObj.getSection(group).getLong(param);
+        try {
+            return agentConfObj.getSection(group).getLong(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public Long getLongParam(String group, String param, Long ifNull) {
         try {
@@ -119,18 +170,26 @@ public class Config {
     }
 
     public String getStringParam(String param) {
-        if (this.iniConfObj != null)
-            return this.iniConfObj.getString(param);
-        return this.subConfObj.getString(param);
+        try {
+            if (this.agentConfObj != null)
+                return this.agentConfObj.getString(param);
+            return this.pluginConfObj.getString(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
     public String getStringParam(String group, String param) {
-        return iniConfObj.getSection(group).getString(param);
+        try {
+            return agentConfObj.getSection(group).getString(param);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
-    protected HierarchicalINIConfiguration getConfig() {
-        return this.iniConfObj;
+    public HierarchicalINIConfiguration getConfig() {
+        return this.agentConfObj;
     }
-    protected SubnodeConfiguration getPluginConfig() {
-        return this.subConfObj;
+    public SubnodeConfiguration getPluginConfig() {
+        return this.pluginConfObj;
     }
 }
