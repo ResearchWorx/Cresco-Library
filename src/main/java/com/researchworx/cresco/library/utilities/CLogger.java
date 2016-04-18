@@ -4,6 +4,12 @@ import com.researchworx.cresco.library.messaging.MsgEvent;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Cresco logger
+ * @author V.K. Cody Bumgardner
+ * @author Caylin Hickey
+ * @version 0.2.7
+ */
 public class CLogger {
     public enum Level {
         None(-1), Error(0), Warn(1), Info(2), Debug(4), Trace(8);
@@ -19,19 +25,15 @@ public class CLogger {
     private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
 
     public CLogger(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
-        this.region = region;
-        this.agent = agent;
-        this.plugin = plugin;
-        this.level = Level.Info;
-        this.msgOutQueue = msgOutQueue;
+        this(msgOutQueue, region, agent, plugin, Level.Info);
     }
 
-    public CLogger(ConcurrentLinkedQueue<MsgEvent> msgQueue, String region, String agent, String plugin, Level level) {
+    public CLogger(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
         this.region = region;
         this.agent = agent;
         this.plugin = plugin;
         this.level = level;
-        this.msgOutQueue = msgQueue;
+        this.msgOutQueue = msgOutQueue;
     }
 
     public void info(String logMessage) {
@@ -42,9 +44,8 @@ public class CLogger {
     public void info(String logMessage, String ... params) {
         if (!this.level.toShow(Level.Info)) return;
         int replaced = 0;
-        while (logMessage.contains("{}") && replaced < params.length) {
+        while (logMessage.contains("{}") && replaced < params.length)
             logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
-        }
         info(logMessage);
     }
 
@@ -56,9 +57,8 @@ public class CLogger {
     public void debug(String logMessage, String ... params) {
         if (!this.level.toShow(Level.Debug)) return;
         int replaced = 0;
-        while (logMessage.contains("{}") && replaced < params.length) {
+        while (logMessage.contains("{}") && replaced < params.length)
             logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
-        }
         debug(logMessage);
     }
 
@@ -70,40 +70,25 @@ public class CLogger {
     public void trace(String logMessage, String ... params) {
         if (!this.level.toShow(Level.Trace)) return;
         int replaced = 0;
-        while (logMessage.contains("{}") && replaced < params.length) {
+        while (logMessage.contains("{}") && replaced < params.length)
             logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
-        }
         trace(logMessage);
     }
 
     public void log(String logMessage) {
-        MsgEvent me = new MsgEvent(MsgEvent.Type.INFO, region, null, null, logMessage);
-        me.setParam("src_region", region);
+        MsgEvent toSend = new MsgEvent(MsgEvent.Type.INFO, region, null, null, logMessage);
+        toSend.setParam("src_region", region);
         if (agent != null) {
-            me.setParam("src_agent", agent);
-            if (plugin != null) {
-                me.setParam("src_plugin", plugin);
-            }
+            toSend.setParam("src_agent", agent);
+            if (plugin != null)
+                toSend.setParam("src_plugin", plugin);
         }
-        me.setParam("dst_region", region);
-        this.msgOutQueue.offer(me);
+        toSend.setParam("dst_region", region);
+        this.msgOutQueue.offer(toSend);
     }
 
-    public void log(MsgEvent me) {
-        this.msgOutQueue.offer(me);
-    }
-
-    public MsgEvent getLog(String logMessage) {
-        MsgEvent me = new MsgEvent(MsgEvent.Type.INFO, region, null, null, logMessage);
-        me.setParam("src_region", region);
-        if (agent != null) {
-            me.setParam("src_agent", agent);
-            if (plugin != null) {
-                me.setParam("src_plugin", plugin);
-            }
-        }
-        me.setParam("dst_region", region);
-        return me;
+    public void log(MsgEvent logMessage) {
+        this.msgOutQueue.offer(logMessage);
     }
 
     public void error(String ErrorMessage, String ... params) {
@@ -117,31 +102,20 @@ public class CLogger {
 
     public void error(String ErrorMessage) {
         if (!this.level.toShow(Level.Error)) return;
-        MsgEvent ee = new MsgEvent(MsgEvent.Type.ERROR, region, null, null, ErrorMessage);
-        ee.setParam("src_region", region);
+        MsgEvent toSend = new MsgEvent(MsgEvent.Type.ERROR, region, null, null, ErrorMessage);
+        toSend.setParam("src_region", region);
         if (agent != null) {
-            ee.setParam("src_agent", agent);
-            if (plugin != null) {
-                ee.setParam("src_plugin", plugin);
-            }
+            toSend.setParam("src_agent", agent);
+            if (plugin != null)
+                toSend.setParam("src_plugin", plugin);
         }
-        ee.setParam("dst_region", region);
-        this.msgOutQueue.offer(ee);
+        toSend.setParam("dst_region", region);
+        this.msgOutQueue.offer(toSend);
     }
 
-    public MsgEvent getError(String ErrorMessage) {
-        MsgEvent ee = new MsgEvent(MsgEvent.Type.ERROR, region, null, null, ErrorMessage);
-        ee.setParam("src_region", region);
-        if (agent != null) {
-            ee.setParam("src_agent", agent);
-            if (plugin != null) {
-                ee.setParam("src_plugin", plugin);
-            }
-        }
-        ee.setParam("dst_region", region);
-        return ee;
+    public Level getLogLevel() {
+        return this.level;
     }
-
     public void setLogLevel(Level level) {
         this.level = level;
     }
