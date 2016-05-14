@@ -10,7 +10,7 @@ import java.util.TimerTask;
  * Cresco WatchDog heartbeat system
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @version 0.2.7
+ * @version 0.3.1
  */
 public class WatchDog {
     /** Timer control object */
@@ -52,7 +52,7 @@ public class WatchDog {
      */
     public WatchDog start() {
         if (this.running) return this;
-        Long interval = config.getLongParam("", "watchdogtimer", 5000L);
+        Long interval = config.getLongParam("watchdogtimer", 5000L);
         this.startTS = System.currentTimeMillis();
 
         MsgEvent initial = new MsgEvent(MsgEvent.Type.INFO, this.region, this.agent, this.pluginID, "WatchDog timer set to " + interval + " milliseconds");

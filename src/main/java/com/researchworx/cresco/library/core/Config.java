@@ -1,195 +1,150 @@
 package com.researchworx.cresco.library.core;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
 
 import java.util.NoSuchElementException;
 
 /**
- * Configuration handler for Cresco framework
+ * Cresco configuration handler
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @version 0.2.7
+ * @version 0.3.1
  */
 public class Config {
-    /** Agent configuration object */
-    protected HierarchicalINIConfiguration agentConfObj;
     /** Plugin configuration object */
-    protected SubnodeConfiguration pluginConfObj;
-
+    protected SubnodeConfiguration confObj;
     /**
-     * Agent constructor
-     * @param agentConfig               Path to the agent configuration file
-     * @throws ConfigurationException   Exception loading the configuration file
-     */
-    public Config(String agentConfig) throws ConfigurationException {
-        this.agentConfObj = new HierarchicalINIConfiguration(agentConfig);
-        this.agentConfObj.setDelimiterParsingDisabled(true);
-        this.agentConfObj.setAutoSave(true);
-    }
-
-    /**
-     * Plugin constructor
-     * @param pluginConfig              Plugin configuration object
+     * Constructor
+     * @param pluginConfig      Plugin configuration object
      */
     public Config (SubnodeConfiguration pluginConfig) {
-        this.pluginConfObj = pluginConfig;
+        this.confObj = pluginConfig;
     }
-
+    /**
+     * Grab configuration entry as Boolean
+     * @param param             Entry name to retrieve
+     * @return                  Value of entry, null if missing
+     */
     public Boolean getBooleanParam(String param) {
         try {
-            if (this.agentConfObj != null)
-                return this.agentConfObj.getBoolean(param);
-            return this.pluginConfObj.getBoolean(param);
+            return this.confObj.getBoolean(param);
         } catch (NoSuchElementException e) {
             return null;
         }
     }
+    /**
+     * Grab configuration entry as Boolean
+     * @param param             Entry name to retrieve
+     * @param ifNull            Default value to return on error
+     * @return                  Value of entry, ifNull value on error
+     */
     public Boolean getBooleanParam(String param, Boolean ifNull) {
         Boolean ret = getBooleanParam(param);
         if (ret != null)
             return ret;
         return ifNull;
     }
-    public Boolean getBooleanParam(String group, String param) {
-        try {
-            return this.agentConfObj.getSection(group).getBoolean(param);
-        } catch (NoSuchElementException e) {
-            return null;
-        }
-    }
-    public Boolean getBooleanParam(String group, String param, Boolean ifNull) {
-        try {
-            Boolean ret = getBooleanParam(group, param);
-            if (ret != null)
-                return ret;
-            return ifNull;
-        } catch (NullPointerException e) {
-            return getBooleanParam(param, ifNull);
-        }
-    }
-
+    /**
+     * Grab configuration entry as Double
+     * @param param             Entry name to retrieve
+     * @return                  Value of entry, null if missing
+     */
     public Double getDoubleParam(String param) {
         try {
-            if (this.agentConfObj != null)
-                return this.agentConfObj.getDouble(param);
-            return this.pluginConfObj.getDouble(param);
+            return this.confObj.getDouble(param);
         } catch (NoSuchElementException e) {
             return null;
         }
     }
+    /**
+     * Grab configuration entry as Double
+     * @param param             Entry name to retrieve
+     * @param ifNull            Default value to return on error
+     * @return                  Value of entry, ifNull value on error
+     */
     public Double getDoubleParam(String param, Double ifNull) {
         Double ret = getDoubleParam(param);
         if (ret != null)
             return ret;
         return ifNull;
     }
-    public Double getDoubleParam(String group, String param) {
-        try {
-            return agentConfObj.getSection(group).getDouble(param);
-        } catch (NoSuchElementException e) {
-            return null;
-        }
-    }
-    public Double getDoubleParam(String group, String param, Double ifNull) {
-        try {
-            Double ret = getDoubleParam(group, param);
-            if (ret != null)
-                return ret;
-            return ifNull;
-        } catch (NullPointerException e) {
-            return getDoubleParam(param, ifNull);
-        }
-    }
-
+    /**
+     * Grab configuration entry as Integer
+     * @param param             Entry name to retrieve
+     * @return                  Value of entry, null if missing
+     */
     public Integer getIntegerParam(String param) {
         try {
-            if (this.agentConfObj != null)
-                return this.agentConfObj.getInt(param);
-            return this.pluginConfObj.getInt(param);
+            return this.confObj.getInt(param);
         } catch (NoSuchElementException e) {
             return null;
         }
     }
+    /**
+     * Grab configuration entry as Integer
+     * @param param             Entry name to retrieve
+     * @param ifNull            Default value to return on error
+     * @return                  Value of entry, ifNull value on error
+     */
     public Integer getIntegerParam(String param, Integer ifNull) {
         Integer ret = getIntegerParam(param);
         if (ret != null)
             return ret;
         return ifNull;
     }
-    public Integer getIntegerParam(String group, String param) {
-        try {
-            return agentConfObj.getSection(group).getInt(param);
-        } catch (NoSuchElementException e) {
-            return null;
-        }
-    }
-    public Integer getIntegerParam(String group, String param, Integer ifNull) {
-        try {
-            Integer ret = getIntegerParam(group, param);
-            if (ret != null)
-                return ret;
-            return ifNull;
-        } catch (NullPointerException e) {
-            return getIntegerParam(param, ifNull);
-        }
-    }
-
+    /**
+     * Grab configuration entry as Long
+     * @param param             Entry name to retrieve
+     * @return                  Value of entry, null if missing
+     */
     public Long getLongParam(String param) {
         try {
-            if (this.agentConfObj != null)
-                return this.agentConfObj.getLong(param);
-            return this.pluginConfObj.getLong(param);
+            return this.confObj.getLong(param);
         } catch (NoSuchElementException e) {
             return null;
         }
     }
+    /**
+     * Grab configuration entry as Long
+     * @param param             Entry name to retrieve
+     * @param ifNull            Default value to return on error
+     * @return                  Value of entry, ifNull value on error
+     */
     public Long getLongParam(String param, Long ifNull) {
         Long ret = getLongParam(param);
         if (ret != null)
             return ret;
         return ifNull;
     }
-    public Long getLongParam(String group, String param) {
-        try {
-            return agentConfObj.getSection(group).getLong(param);
-        } catch (NoSuchElementException e) {
-            return null;
-        }
-    }
-    public Long getLongParam(String group, String param, Long ifNull) {
-        try {
-            Long ret = getLongParam(group, param);
-            if (ret != null)
-                return ret;
-            return ifNull;
-        } catch (NullPointerException e) {
-            return getLongParam(param, ifNull);
-        }
-    }
-
+    /**
+     * Grab configuration entry as String
+     * @param param             Entry name to retrieve
+     * @return                  Value of entry, null if missing
+     */
     public String getStringParam(String param) {
         try {
-            if (this.agentConfObj != null)
-                return this.agentConfObj.getString(param);
-            return this.pluginConfObj.getString(param);
+            return this.confObj.getString(param);
         } catch (NoSuchElementException e) {
             return null;
         }
     }
-    public String getStringParam(String group, String param) {
-        try {
-            return agentConfObj.getSection(group).getString(param);
-        } catch (NoSuchElementException e) {
-            return null;
-        }
+    /**
+     * Grab configuration entry as String
+     * @param param             Entry name to retrieve
+     * @param ifNull            Default value to return on error
+     * @return                  Value of entry, ifNull value on error
+     */
+    public String getStringParam(String param, String ifNull) {
+        String ret = getStringParam(param);
+        if (ret != null)
+            return ret;
+        return ifNull;
     }
-
-    public HierarchicalINIConfiguration getConfig() {
-        return this.agentConfObj;
-    }
-    public SubnodeConfiguration getPluginConfig() {
-        return this.pluginConfObj;
+    /**
+     * Returns the underlying configuration object
+     * @return                  The underlying configuration object
+     */
+    public SubnodeConfiguration getConfig() {
+        return this.confObj;
     }
 }
