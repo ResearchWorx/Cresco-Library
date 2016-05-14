@@ -10,7 +10,7 @@ import java.util.TimerTask;
  * Cresco WatchDog heartbeat system
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @version 0.3.1
+ * @version 0.3.2
  */
 public class WatchDog {
     /** Timer control object */
@@ -64,6 +64,7 @@ public class WatchDog {
 
         this.timer = new Timer();
         this.timer.scheduleAtFixedRate(new WatchDogTask(this.region, this.agent, this.pluginID, this.logger), 500, interval);
+        this.running = true;
         return this;
     }
 

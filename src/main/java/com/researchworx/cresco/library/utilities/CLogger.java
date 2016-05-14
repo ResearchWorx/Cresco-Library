@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Cresco logger
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @version 0.3.1
+ * @version 0.3.2
  */
 public class CLogger {
     public enum Level {
