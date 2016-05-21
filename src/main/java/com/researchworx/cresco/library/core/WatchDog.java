@@ -10,7 +10,7 @@ import java.util.TimerTask;
  * Cresco WatchDog heartbeat system
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @version 0.3.2
+ * @version 0.3.3
  */
 public class WatchDog {
     /** Timer control object */
@@ -47,24 +47,51 @@ public class WatchDog {
     }
 
     /**
+     * Updates the identity broadcast by this WatchDog instance
+     * @param region        New Region to report from
+     * @param agent         New Agent to report from
+     * @param pluginID      New Plugin ID to report from
+     */
+    public void update(String region, String agent, String pluginID) {
+        setRegion(region);
+        setAgent(agent);
+        setPluginID(pluginID);
+        restart();
+    }
+
+    /**
+     * Updates the parameters of this WatchDog instance
+     * @param region        New Region to report from
+     * @param agent         New Agent to report from
+     * @param pluginID      New Plugin ID to report from
+     * @param logger        New CLogger to use for errors
+     * @param config        New Config to use for settings
+     */
+    public void update(String region, String agent, String pluginID, CLogger logger, Config config) {
+        setLogger(logger);
+        setConfig(config);
+        update(region, agent, pluginID);
+    }
+
+    /**
      * Starts this WatchDog instance
      * @return              This instance
      */
     public WatchDog start() {
-        if (this.running) return this;
+        if (running) return this;
         Long interval = config.getLongParam("watchdogtimer", 5000L);
-        this.startTS = System.currentTimeMillis();
+        startTS = System.currentTimeMillis();
 
-        MsgEvent initial = new MsgEvent(MsgEvent.Type.INFO, this.region, this.agent, this.pluginID, "WatchDog timer set to " + interval + " milliseconds");
-        initial.setParam("src_region", this.region);
-        initial.setParam("src_agent", this.agent);
-        initial.setParam("src_plugin", this.pluginID);
-        initial.setParam("dst_region", this.region);
-        this.logger.log(initial);
+        MsgEvent initial = new MsgEvent(MsgEvent.Type.INFO, region, null, null, "WatchDog timer set to " + interval + " milliseconds");
+        initial.setParam("src_region", region);
+        initial.setParam("src_agent", agent);
+        initial.setParam("src_plugin", pluginID);
+        initial.setParam("dst_region", region);
+        logger.log(initial);
 
-        this.timer = new Timer();
-        this.timer.scheduleAtFixedRate(new WatchDogTask(this.region, this.agent, this.pluginID, this.logger), 500, interval);
-        this.running = true;
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new WatchDogTask(region, agent, pluginID, logger), 500, interval);
+        running = true;
         return this;
     }
 
@@ -73,7 +100,7 @@ public class WatchDog {
      * @return              This instance
      */
     public WatchDog restart() {
-        if (this.running) this.timer.cancel();
+        if (running) timer.cancel();
         this.running = false;
         return start();
     }
@@ -83,9 +110,9 @@ public class WatchDog {
      * @return              Whether the instance was stopped
      */
     public boolean stop() {
-        if (!this.running) return false;
-        this.timer.cancel();
-        this.running = false;
+        if (!running) return false;
+        timer.cancel();
+        running = false;
         return true;
     }
 
@@ -120,7 +147,7 @@ public class WatchDog {
          * Tick
          */
         public void run() {
-            MsgEvent tick = new MsgEvent(MsgEvent.Type.WATCHDOG, this.region, null, null, "WatchDog timer tick.");
+            MsgEvent tick = new MsgEvent(MsgEvent.Type.WATCHDOG, region, null, null, "WatchDog timer tick.");
             tick.setParam("src_region", this.region);
             tick.setParam("src_agent", this.agent);
             tick.setParam("src_plugin", this.pluginID);
@@ -129,5 +156,40 @@ public class WatchDog {
             tick.setParam("timestamp", String.valueOf(System.currentTimeMillis()));
             this.logger.log(tick);
         }
+    }
+
+    public String getRegion() {
+        return region;
+    }
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+    public void setAgent(String agent) {
+        this.agent = agent;
+    }
+
+    public String getPluginID() {
+        return pluginID;
+    }
+    public void setPluginID(String pluginID) {
+        this.pluginID = pluginID;
+    }
+
+    public CLogger getLogger() {
+        return logger;
+    }
+    public void setLogger(CLogger logger) {
+        this.logger = logger;
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+    public void setConfig(Config config) {
+        this.config = config;
     }
 }

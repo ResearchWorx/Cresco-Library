@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
  * Cresco remote procedure call helper
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @version 0.3.2
+ * @version 0.3.3
  */
 public class RPC {
     /** Time between checks for RPC return message (in milliseconds) */
@@ -48,6 +48,18 @@ public class RPC {
     }
 
     /**
+     * Updates the identity broadcast by this WatchDog instance
+     * @param region        New Region to report from
+     * @param agent         New Agent to report from
+     * @param pluginID      New Plugin ID to report from
+     */
+    public void update(String region, String agent, String pluginID) {
+        setRegion(region);
+        setAgent(agent);
+        setPluginID(pluginID);
+    }
+
+    /**
      * Issues a remote procedure call
      * @param msg           Message to send
      * @return              The return message, null if no return is received
@@ -55,22 +67,50 @@ public class RPC {
     public MsgEvent call(MsgEvent msg) {
         try {
             String callId = java.util.UUID.randomUUID().toString();
-            msg.setParam("callId-" + this.region + "-" + this.agent + "-" + this.pluginID, callId);
-            this.msgOutQueue.offer(msg);
+            msg.setParam("callId-" + region + "-" + agent + "-" + pluginID, callId);
+            msgOutQueue.offer(msg);
 
             int count = 0;
             while (count++ < MAX_INTERVALS) {
-                if (this.rpcMap.containsKey(callId)) {
+                if (rpcMap.containsKey(callId)) {
                     MsgEvent callBack;
-                    callBack = this.rpcMap.get(callId);
-                    this.rpcMap.remove(callId);
+                    callBack = rpcMap.get(callId);
+                    rpcMap.remove(callId);
                     return callBack;
                 }
                 Thread.sleep(CHECK_INTERVAL);
             }
         } catch (Exception ex) {
-            this.logger.error("call {}", ex.getMessage());
+            logger.error("call {}", ex.getMessage());
         }
         return null;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getAgent() {
+        return agent;
+    }
+    public void setAgent(String agent) {
+        this.agent = agent;
+    }
+
+    public String getPluginID() {
+        return pluginID;
+    }
+    public void setPluginID(String pluginID) {
+        this.pluginID = pluginID;
+    }
+
+    public CLogger getLogger() {
+        return logger;
+    }
+    public void setLogger(CLogger logger) {
+        this.logger = logger;
     }
 }
