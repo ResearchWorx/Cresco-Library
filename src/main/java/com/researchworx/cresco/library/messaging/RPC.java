@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentMap;
  * Cresco remote procedure call helper
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @version 0.3.3
  */
 public class RPC {
     /** Time between checks for RPC return message (in milliseconds) */
