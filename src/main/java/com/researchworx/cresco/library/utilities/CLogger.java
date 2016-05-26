@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Cresco logger
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
+ * @since 0.1.0
  */
 public class CLogger {
     public enum Level {
@@ -35,47 +36,58 @@ public class CLogger {
         this.msgOutQueue = msgOutQueue;
     }
 
+    public void error(String logMessage) {
+        if (!level.toShow(Level.Error)) return;
+        log(logMessage, Level.Error);
+    }
+
+    public void error(String logMessage, String ... params) {
+        if (!level.toShow(Level.Error)) return;
+        error(replaceBrackets(logMessage));
+    }
+
+    public void warn(String logMessage) {
+        if (!level.toShow(Level.Warn)) return;
+        log(logMessage, Level.Warn);
+    }
+
+    public void warn(String logMessage, String ... params) {
+        if (!level.toShow(Level.Warn)) return;
+        warn(replaceBrackets(logMessage));
+    }
+
     public void info(String logMessage) {
-        if (!this.level.toShow(Level.Info)) return;
-        log(logMessage);
+        if (!level.toShow(Level.Info)) return;
+        log(logMessage, Level.Info);
     }
 
     public void info(String logMessage, String ... params) {
-        if (!this.level.toShow(Level.Info)) return;
-        int replaced = 0;
-        while (logMessage.contains("{}") && replaced < params.length)
-            logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
-        info(logMessage);
+        if (!level.toShow(Level.Info)) return;
+        info(replaceBrackets(logMessage));
     }
 
     public void debug(String logMessage) {
-        if (!this.level.toShow(Level.Debug)) return;
-        log(logMessage);
+        if (!level.toShow(Level.Debug)) return;
+        log(logMessage, Level.Debug);
     }
 
     public void debug(String logMessage, String ... params) {
-        if (!this.level.toShow(Level.Debug)) return;
-        int replaced = 0;
-        while (logMessage.contains("{}") && replaced < params.length)
-            logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
-        debug(logMessage);
+        if (!level.toShow(Level.Debug)) return;
+        debug(replaceBrackets(logMessage));
     }
 
     public void trace(String logMessage) {
-        if (!this.level.toShow(Level.Trace)) return;
-        log(logMessage);
+        if (!level.toShow(Level.Trace)) return;
+        log(logMessage, Level.Trace);
     }
 
     public void trace(String logMessage, String ... params) {
-        if (!this.level.toShow(Level.Trace)) return;
-        int replaced = 0;
-        while (logMessage.contains("{}") && replaced < params.length)
-            logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
-        trace(logMessage);
+        if (!level.toShow(Level.Trace)) return;
+        trace(replaceBrackets(logMessage));
     }
 
-    public void log(String logMessage) {
-        MsgEvent toSend = new MsgEvent(MsgEvent.Type.INFO, region, null, null, logMessage);
+    public void log(String logMessage, Level level) {
+        MsgEvent toSend = new MsgEvent(MsgEvent.Type.LOG, region, null, null, logMessage);
         toSend.setParam("src_region", region);
         if (agent != null) {
             toSend.setParam("src_agent", agent);
@@ -83,39 +95,26 @@ public class CLogger {
                 toSend.setParam("src_plugin", plugin);
         }
         toSend.setParam("dst_region", region);
-        this.msgOutQueue.offer(toSend);
+        toSend.setParam("log_level", level.name());
+        log(toSend);
     }
 
     public void log(MsgEvent logMessage) {
-        this.msgOutQueue.offer(logMessage);
-    }
-
-    public void error(String ErrorMessage, String ... params) {
-        if (!this.level.toShow(Level.Error)) return;
-        int replaced = 0;
-        while (ErrorMessage.contains("{}") && replaced < params.length) {
-            ErrorMessage = ErrorMessage.replaceFirst("\\{\\}", params[replaced++]);
-        }
-        error(ErrorMessage);
-    }
-
-    public void error(String ErrorMessage) {
-        if (!this.level.toShow(Level.Error)) return;
-        MsgEvent toSend = new MsgEvent(MsgEvent.Type.ERROR, region, null, null, ErrorMessage);
-        toSend.setParam("src_region", region);
-        if (agent != null) {
-            toSend.setParam("src_agent", agent);
-            if (plugin != null)
-                toSend.setParam("src_plugin", plugin);
-        }
-        toSend.setParam("dst_region", region);
-        this.msgOutQueue.offer(toSend);
+        msgOutQueue.offer(logMessage);
     }
 
     public Level getLogLevel() {
-        return this.level;
+        return level;
     }
+
     public void setLogLevel(Level level) {
         this.level = level;
+    }
+
+    private String replaceBrackets(String logMessage, String ... params) {
+        int replaced = 0;
+        while (logMessage.contains("{}") && replaced < params.length)
+            logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
+        return logMessage;
     }
 }

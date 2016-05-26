@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlRootElement
 public class MsgEvent {
     public enum Type {
-        CONFIG, DISCOVER, ERROR, EXEC, INFO, KPI, WATCHDOG
+        CONFIG, DISCOVER, ERROR, EXEC, INFO, KPI, LOG, WATCHDOG
     }
 
     private Type msgType;

@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
  * Cresco configuration handler
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
+ * @since 0.1.0
  */
 public class Config {
     /** Plugin configuration object */

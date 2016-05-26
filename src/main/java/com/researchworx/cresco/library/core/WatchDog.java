@@ -10,6 +10,7 @@ import java.util.TimerTask;
  * Cresco WatchDog heartbeat system
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
+ * @since 0.1.0
  */
 public class WatchDog {
     /** Timer control object */
@@ -157,37 +158,82 @@ public class WatchDog {
         }
     }
 
+    /**
+     * Region identification getter
+     * @return          Current region identification
+     */
     public String getRegion() {
         return region;
     }
+
+    /**
+     * Region identification setter
+     * @param region    New region identification
+     */
     public void setRegion(String region) {
         this.region = region;
     }
 
+    /**
+     * Agent identification getter
+     * @return          Current agent identification
+     */
     public String getAgent() {
         return agent;
     }
+
+    /**
+     * Agent identification setter
+     * @param agent     New agent identification
+     */
     public void setAgent(String agent) {
         this.agent = agent;
     }
 
+    /**
+     * Plugin identification getter
+     * @return          Current plugin identification
+     */
     public String getPluginID() {
         return pluginID;
     }
+
+    /**
+     * Plugin identification setter
+     * @param pluginID  New plugin identification
+     */
     public void setPluginID(String pluginID) {
         this.pluginID = pluginID;
     }
 
+    /**
+     * Logger instance getter
+     * @return          Current logger instance
+     */
     public CLogger getLogger() {
         return logger;
     }
+
+    /**
+     * Logger instance setter
+     * @param logger    New logger instance
+     */
     public void setLogger(CLogger logger) {
         this.logger = logger;
     }
 
+    /**
+     * Configuration getter
+     * @return          Current configuration
+     */
     public Config getConfig() {
         return config;
     }
+
+    /**
+     * Configuration setter
+     * @param config    New configuration
+     */
     public void setConfig(Config config) {
         this.config = config;
     }

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentMap;
  * Cresco remote procedure call helper
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
+ * @since 0.1.0
  */
 public class RPC {
     /** Time between checks for RPC return message (in milliseconds) */
@@ -85,30 +86,75 @@ public class RPC {
         return null;
     }
 
+    /**
+     * Places the return message for retrieval
+     * @param callId            ID of the remote-procedural call
+     * @param returnMessage     The return message
+     */
+    public void putReturnMessage(String callId, MsgEvent returnMessage) {
+        rpcMap.put(callId, returnMessage);
+    }
+
+    /**
+     * Region identification getter
+     * @return          Current region identification
+     */
     public String getRegion() {
         return region;
     }
+
+    /**
+     * Region identification setter
+     * @param region    New region identification
+     */
     public void setRegion(String region) {
         this.region = region;
     }
 
+    /**
+     * Agent identification getter
+     * @return          Current agent identification
+     */
     public String getAgent() {
         return agent;
     }
+
+    /**
+     * Agent identification setter
+     * @param agent     New agent identification
+     */
     public void setAgent(String agent) {
         this.agent = agent;
     }
 
+    /**
+     * Plugin identification getter
+     * @return          Current plugin identification
+     */
     public String getPluginID() {
         return pluginID;
     }
+
+    /**
+     * Plugin identification setter
+     * @param pluginID  New plugin identification
+     */
     public void setPluginID(String pluginID) {
         this.pluginID = pluginID;
     }
 
+    /**
+     * Logger instance getter
+     * @return          Current logger instance
+     */
     public CLogger getLogger() {
         return logger;
     }
+
+    /**
+     * Logger instance setter
+     * @param logger    New logger instance
+     */
     public void setLogger(CLogger logger) {
         this.logger = logger;
     }
