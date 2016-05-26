@@ -2,6 +2,7 @@ package com.researchworx.cresco.library.messaging;
 
 import com.researchworx.cresco.library.utilities.CLogger;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -21,7 +22,7 @@ public class RPC {
     /** Communication channel */
     private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
     /** Central RPC return message repository */
-    private ConcurrentMap<String, MsgEvent> rpcMap;
+    private ConcurrentMap<String, MsgEvent> rpcMap = new ConcurrentHashMap<>();
     /** Region of this instance */
     private String region;
     /** Agent of this instance */
@@ -38,10 +39,9 @@ public class RPC {
      * @param pluginID      Plugin ID of this instance
      * @param logger        Logger to use
      */
-    public RPC(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, ConcurrentMap<String, MsgEvent> rpcMap, String region, String agent, String pluginID, CLogger logger) {
+    public RPC(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String pluginID, CLogger logger) {
         this.logger = logger;
         this.msgOutQueue = msgOutQueue;
-        this.rpcMap = rpcMap;
         this.region = region;
         this.agent = agent;
         this.pluginID = pluginID;
