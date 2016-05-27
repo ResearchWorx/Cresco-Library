@@ -90,7 +90,6 @@ public class CLogger {
     }
 
     public void log(String logMessage, Level level) {
-        System.out.println("[" + level.name() + "]: " + logMessage);
         MsgEvent toSend = new MsgEvent(MsgEvent.Type.LOG, region, null, null, logMessage);
         toSend.setParam("src_region", region);
         if (agent != null) {
