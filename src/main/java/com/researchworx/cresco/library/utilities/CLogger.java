@@ -2,6 +2,7 @@ package com.researchworx.cresco.library.utilities;
 
 import com.researchworx.cresco.library.messaging.MsgEvent;
 
+import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -16,7 +17,9 @@ public class CLogger {
         private final int level;
         Level(int level) { this.level = level; }
         public int getValue() { return level; }
-        public boolean toShow(Level check) { return check.getValue() <= this.getValue(); }
+        public boolean toShow(Level check) {
+            return check.getValue() <= this.getValue();
+        }
     }
     private String region;
     private String agent;
@@ -41,9 +44,9 @@ public class CLogger {
         log(logMessage, Level.Error);
     }
 
-    public void error(String logMessage, String ... params) {
+    public void error(String logMessage, Object ... params) {
         if (!level.toShow(Level.Error)) return;
-        error(replaceBrackets(logMessage));
+        error(replaceBrackets(logMessage, params));
     }
 
     public void warn(String logMessage) {
@@ -51,9 +54,9 @@ public class CLogger {
         log(logMessage, Level.Warn);
     }
 
-    public void warn(String logMessage, String ... params) {
+    public void warn(String logMessage, Object ... params) {
         if (!level.toShow(Level.Warn)) return;
-        warn(replaceBrackets(logMessage));
+        warn(replaceBrackets(logMessage, params));
     }
 
     public void info(String logMessage) {
@@ -61,9 +64,9 @@ public class CLogger {
         log(logMessage, Level.Info);
     }
 
-    public void info(String logMessage, String ... params) {
+    public void info(String logMessage, Object ... params) {
         if (!level.toShow(Level.Info)) return;
-        info(replaceBrackets(logMessage));
+        info(replaceBrackets(logMessage, params));
     }
 
     public void debug(String logMessage) {
@@ -71,9 +74,9 @@ public class CLogger {
         log(logMessage, Level.Debug);
     }
 
-    public void debug(String logMessage, String ... params) {
+    public void debug(String logMessage, Object ... params) {
         if (!level.toShow(Level.Debug)) return;
-        debug(replaceBrackets(logMessage));
+        debug(replaceBrackets(logMessage, params));
     }
 
     public void trace(String logMessage) {
@@ -81,12 +84,13 @@ public class CLogger {
         log(logMessage, Level.Trace);
     }
 
-    public void trace(String logMessage, String ... params) {
+    public void trace(String logMessage, Object ... params) {
         if (!level.toShow(Level.Trace)) return;
-        trace(replaceBrackets(logMessage));
+        trace(replaceBrackets(logMessage, params));
     }
 
     public void log(String logMessage, Level level) {
+        System.out.println("[" + level.name() + "]: " + logMessage);
         MsgEvent toSend = new MsgEvent(MsgEvent.Type.LOG, region, null, null, logMessage);
         toSend.setParam("src_region", region);
         if (agent != null) {
@@ -94,6 +98,7 @@ public class CLogger {
             if (plugin != null)
                 toSend.setParam("src_plugin", plugin);
         }
+        toSend.setParam("ts", String.valueOf(new Date().getTime()));
         toSend.setParam("dst_region", region);
         toSend.setParam("log_level", level.name());
         log(toSend);
@@ -111,10 +116,12 @@ public class CLogger {
         this.level = level;
     }
 
-    private String replaceBrackets(String logMessage, String ... params) {
+    private String replaceBrackets(String logMessage, Object ... params) {
         int replaced = 0;
-        while (logMessage.contains("{}") && replaced < params.length)
-            logMessage = logMessage.replaceFirst("\\{\\}", params[replaced++]);
+        while (logMessage.contains("{}") && replaced < params.length) {
+            logMessage = logMessage.replaceFirst("\\{\\}", String.valueOf(params[replaced]));
+            replaced++;
+        }
         return logMessage;
     }
 }
