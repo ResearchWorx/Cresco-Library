@@ -22,7 +22,7 @@ public class RPC {
     /** Communication channel */
     private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
     /** Central RPC return message repository */
-    private ConcurrentMap<String, MsgEvent> rpcMap = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, MsgEvent> rpcMap = new ConcurrentHashMap<String, MsgEvent>();
     /** Region of this instance */
     private String region;
     /** Agent of this instance */
@@ -33,7 +33,6 @@ public class RPC {
     /**
      * Constructor
      * @param msgOutQueue   Outbound communication channel
-     * @param rpcMap        Central return message repository
      * @param region        Region of this instance
      * @param agent         Agent of this instance
      * @param pluginID      Plugin ID of this instance

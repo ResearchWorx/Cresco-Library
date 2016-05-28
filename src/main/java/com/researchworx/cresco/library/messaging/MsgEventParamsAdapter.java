@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 class MsgEventParamsAdapter extends XmlAdapter<MsgEventParamsAdapter.AdaptedMap, Map<String, String>> {
 
     static class AdaptedMap {
-        List<Entry> entry = new ArrayList<>();
+        List<Entry> entry = new ArrayList<Entry>();
     }
 
     private static class Entry {
@@ -16,7 +16,7 @@ class MsgEventParamsAdapter extends XmlAdapter<MsgEventParamsAdapter.AdaptedMap,
 
     @Override
     public Map<String, String> unmarshal(AdaptedMap adaptedMap) throws Exception {
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<String, String>();
         for(Entry entry : adaptedMap.entry) {
             map.put(entry.key, entry.value);
         }

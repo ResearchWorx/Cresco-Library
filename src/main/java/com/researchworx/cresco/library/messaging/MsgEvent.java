@@ -27,7 +27,7 @@ public class MsgEvent {
         this.msgRegion = msgRegion;
         this.msgAgent = msgAgent;
         this.msgPlugin = msgPlugin;
-        this.params = new HashMap<>();
+        this.params = new HashMap<String, String>();
         params.put("msg", msgBody);
     }
 
@@ -37,7 +37,7 @@ public class MsgEvent {
         this.msgAgent = msgAgent;
         this.msgPlugin = msgPlugin;
         this.params = params;
-        this.params = new HashMap<>(params);
+        this.params = new HashMap<String, String>(params);
     }
 
     public void setSrc(String region, String agent, String plugin) {
