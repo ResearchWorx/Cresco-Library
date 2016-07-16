@@ -26,6 +26,7 @@ public class CLogger {
     private String plugin;
     private Level level;
     private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
+    private Class issuingClass;
 
     public CLogger(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
         this(msgOutQueue, region, agent, plugin, Level.Info);
@@ -37,6 +38,16 @@ public class CLogger {
         this.plugin = plugin;
         this.level = level;
         this.msgOutQueue = msgOutQueue;
+    }
+
+    public CLogger(Class issuingClass, ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
+        this(msgOutQueue, region, agent, plugin);
+        this.issuingClass = issuingClass;
+    }
+
+    public CLogger(Class issuingClass, ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
+        this(msgOutQueue, region, agent, plugin, level);
+        this.issuingClass = issuingClass;
     }
 
     public void error(String logMessage) {
@@ -96,6 +107,10 @@ public class CLogger {
             toSend.setParam("src_agent", agent);
             if (plugin != null)
                 toSend.setParam("src_plugin", plugin);
+        }
+        if (issuingClass != null) {
+            toSend.setParam("class", issuingClass.getSimpleName());
+            toSend.setParam("full_class", issuingClass.getCanonicalName());
         }
         toSend.setParam("ts", String.valueOf(new Date().getTime()));
         toSend.setParam("dst_region", region);
