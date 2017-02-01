@@ -145,6 +145,9 @@ public class Config {
      * @return                  Value of entry, null if missing
      */
     public String getStringParam(String param) {
+        String env = System.getenv(ENV_PREFIX + param);
+        if (env != null)
+            return env;
         try {
             return this.confObj.getString(param);
         } catch (NoSuchElementException e) {
@@ -158,9 +161,6 @@ public class Config {
      * @return                  Value of entry, ifNull value on error
      */
     public String getStringParam(String param, String ifNull) {
-        String env = System.getenv(ENV_PREFIX + param);
-        if (env != null)
-            return env;
         String ret = getStringParam(param);
         if (ret != null)
             return ret;
