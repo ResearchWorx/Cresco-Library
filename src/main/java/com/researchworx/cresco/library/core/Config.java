@@ -11,6 +11,8 @@ import java.util.NoSuchElementException;
  * @since 0.1.0
  */
 public class Config {
+    /** Environmental Variable Prefix */
+    private static final String ENV_PREFIX = "CRESCO_";
     /** Plugin configuration object */
     protected SubnodeConfiguration confObj;
     /**
@@ -26,6 +28,15 @@ public class Config {
      * @return                  Value of entry, null if missing
      */
     public Boolean getBooleanParam(String param) {
+        String env = System.getenv(ENV_PREFIX + param);
+        if (env != null) {
+            if (env.toLowerCase().trim().equals("true") || env.trim().equals("1")) {
+                return true;
+            }
+            if (env.toLowerCase().trim().equals("false") || env.trim().equals("0")) {
+                return false;
+            }
+        }
         try {
             return this.confObj.getBoolean(param);
         } catch (NoSuchElementException e) {
@@ -51,9 +62,13 @@ public class Config {
      */
     public Double getDoubleParam(String param) {
         try {
-            return this.confObj.getDouble(param);
-        } catch (NoSuchElementException e) {
-            return null;
+            return Double.parseDouble(System.getenv(ENV_PREFIX + param));
+        } catch (NumberFormatException nfe) {
+            try {
+                return this.confObj.getDouble(param);
+            } catch (NoSuchElementException nsee) {
+                return null;
+            }
         }
     }
     /**
@@ -75,9 +90,13 @@ public class Config {
      */
     public Integer getIntegerParam(String param) {
         try {
-            return this.confObj.getInt(param);
-        } catch (NoSuchElementException e) {
-            return null;
+            return Integer.parseInt(System.getenv(ENV_PREFIX + param));
+        } catch (NumberFormatException nfe) {
+            try {
+                return this.confObj.getInt(param);
+            } catch (NoSuchElementException nsee) {
+                return null;
+            }
         }
     }
     /**
@@ -99,9 +118,13 @@ public class Config {
      */
     public Long getLongParam(String param) {
         try {
-            return this.confObj.getLong(param);
-        } catch (NoSuchElementException e) {
-            return null;
+            return Long.parseLong(System.getenv(ENV_PREFIX + param));
+        } catch (NumberFormatException nfe) {
+            try {
+                return this.confObj.getLong(param);
+            } catch (NoSuchElementException nsee) {
+                return null;
+            }
         }
     }
     /**
@@ -135,6 +158,9 @@ public class Config {
      * @return                  Value of entry, ifNull value on error
      */
     public String getStringParam(String param, String ifNull) {
+        String env = System.getenv(ENV_PREFIX + param);
+        if (env != null)
+            return env;
         String ret = getStringParam(param);
         if (ret != null)
             return ret;
