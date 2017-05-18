@@ -1,15 +1,14 @@
 package com.researchworx.cresco.library.messaging;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.HashMap;
+import java.util.Map;
 
 @XmlRootElement
 public class MsgEvent {
     public enum Type {
-        CONFIG, DISCOVER, ERROR, EXEC, INFO, KPI, LOG, WATCHDOG
+        CONFIG, DISCOVER, ERROR, EXEC, GC, INFO, KPI, LOG, WATCHDOG
     }
 
     private Type msgType;
