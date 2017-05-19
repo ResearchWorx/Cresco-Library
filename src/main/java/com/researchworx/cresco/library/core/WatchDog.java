@@ -81,14 +81,13 @@ public class WatchDog {
         if (running) return this;
         Long interval = config.getLongParam("watchdogtimer", 5000L);
         startTS = System.currentTimeMillis();
-
-        MsgEvent initial = new MsgEvent(MsgEvent.Type.INFO, region, null, null, "WatchDog timer set to " + interval + " milliseconds");
-        initial.setParam("src_region", region);
-        initial.setParam("src_agent", agent);
-        initial.setParam("src_plugin", pluginID);
-        initial.setParam("dst_region", region);
-        logger.log(initial);
-
+        MsgEvent enabled = new MsgEvent(MsgEvent.Type.CONFIG, region, null, null, "WatchDog timer set to " + interval + " milliseconds");
+        enabled.setParam("src_region", region);
+        enabled.setParam("src_agent", agent);
+        enabled.setParam("src_plugin", pluginID);
+        enabled.setParam("dst_region", region);
+        enabled.setParam("action", "enable");
+        logger.log(enabled);
         timer = new Timer();
         timer.scheduleAtFixedRate(new WatchDogTask(region, agent, pluginID, logger), 500, interval);
         running = true;
@@ -111,6 +110,13 @@ public class WatchDog {
      */
     public boolean stop() {
         if (!running) return false;
+        MsgEvent disabled = new MsgEvent(MsgEvent.Type.CONFIG, region, null, null, "WatchDog timer is shutting down");
+        disabled.setParam("src_region", region);
+        disabled.setParam("src_agent", agent);
+        disabled.setParam("src_plugin", pluginID);
+        disabled.setParam("dst_region", region);
+        disabled.setParam("action", "disable");
+        logger.log(disabled);
         timer.cancel();
         running = false;
         return true;
