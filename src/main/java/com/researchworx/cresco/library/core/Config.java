@@ -2,6 +2,7 @@ package com.researchworx.cresco.library.core;
 
 import org.apache.commons.configuration.SubnodeConfiguration;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
@@ -172,5 +173,27 @@ public class Config {
      */
     public SubnodeConfiguration getConfig() {
         return this.confObj;
+    }
+    /**
+     * Returns a JSON representation of the configuration object
+     * @return                  JSONified configuration object
+     */
+    public String getConfigAsJSON() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        Iterator it = this.confObj.getKeys();
+        while (it.hasNext()) {
+            String key = (String)it.next();
+            String value = this.confObj.getString(key);
+            sb.append("\"");
+            sb.append(key);
+            sb.append("\":\"");
+            sb.append(value);
+            sb.append("\",");
+        }
+        if (sb.lastIndexOf(",") > -1)
+            sb.deleteCharAt(sb.lastIndexOf(","));
+        sb.append("}");
+        return sb.toString();
     }
 }

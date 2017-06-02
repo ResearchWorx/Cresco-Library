@@ -1,9 +1,15 @@
 package com.researchworx.cresco.library.messaging;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 @XmlRootElement
 public class MsgEvent {
@@ -150,5 +156,48 @@ public class MsgEvent {
 
     public void removeParam(String key) {
         params.remove(key);
+    }
+
+    public void setCompressedParam(String key, String value) {
+        params.put(key, DatatypeConverter.printBase64Binary(stringCompress(value)));
+    }
+
+    public String getCompressedParam(String key) {
+        String value = params.get(key);
+        if (value == null)
+            return null;
+        try {
+            byte[] exportDataRawCompressed = DatatypeConverter.parseBase64Binary(value);
+            InputStream iss = new ByteArrayInputStream(exportDataRawCompressed);
+            InputStream is = new GZIPInputStream(iss);
+            return new Scanner(is,"UTF-8").useDelimiter("\\A").next();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public byte[] stringCompress(String str) {
+        byte[] dataToCompress = str.getBytes(StandardCharsets.UTF_8);
+        byte[] compressedData;
+        try {
+            ByteArrayOutputStream byteStream =
+                    new ByteArrayOutputStream(dataToCompress.length);
+            try {
+                GZIPOutputStream zipStream =
+                        new GZIPOutputStream(byteStream);
+                try {
+                    zipStream.write(dataToCompress);
+                }
+                finally {
+                    zipStream.close();
+                }
+            } finally {
+                byteStream.close();
+            }
+            compressedData = byteStream.toByteArray();
+        } catch(Exception e) {
+            return null;
+        }
+        return compressedData;
     }
 }
