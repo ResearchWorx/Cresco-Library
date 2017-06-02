@@ -112,6 +112,8 @@ public class WatchDog {
      */
     public boolean stop() {
         if (!running) return false;
+        timer.cancel();
+        running = false;
         MsgEvent disabled = new MsgEvent(MsgEvent.Type.CONFIG, region, null, null, "WatchDog timer is shutting down");
         disabled.setParam("src_region", region);
         disabled.setParam("src_agent", agent);
@@ -119,8 +121,6 @@ public class WatchDog {
         disabled.setParam("dst_region", region);
         disabled.setParam("action", "disable");
         logger.log(disabled);
-        timer.cancel();
-        running = false;
         return true;
     }
 
