@@ -86,6 +86,7 @@ public class WatchDog {
         enabled.setParam("src_agent", agent);
         enabled.setParam("src_plugin", pluginID);
         enabled.setParam("dst_region", region);
+        enabled.setParam("dst_agent", agent);
         enabled.setParam("watchdogtimer", String.valueOf(interval));
         enabled.setCompressedParam("config", config.getConfigAsJSON());
         enabled.setParam("action", "enable");
@@ -119,6 +120,7 @@ public class WatchDog {
         disabled.setParam("src_agent", agent);
         disabled.setParam("src_plugin", pluginID);
         disabled.setParam("dst_region", region);
+        disabled.setParam("dst_agent", agent);
         disabled.setParam("action", "disable");
         logger.log(disabled);
         return true;
@@ -160,6 +162,7 @@ public class WatchDog {
             tick.setParam("src_agent", this.agent);
             tick.setParam("src_plugin", this.pluginID);
             tick.setParam("dst_region", this.region);
+            tick.setParam("dst_agent", this.agent);
             tick.setParam("runtime", String.valueOf(System.currentTimeMillis() - startTS));
             tick.setParam("timestamp", String.valueOf(System.currentTimeMillis()));
             this.logger.log(tick);
