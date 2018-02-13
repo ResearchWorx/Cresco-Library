@@ -200,4 +200,18 @@ public class MsgEvent {
         }
         return compressedData;
     }
+
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof MsgEvent))
+            return false;
+
+        MsgEvent msgEvent = (MsgEvent)o;
+
+        return msgType.equals(msgEvent.getMsgType()) &&
+                msgRegion.equals(msgEvent.getMsgRegion()) &&
+                msgAgent.equals(msgEvent.getMsgAgent()) &&
+                msgPlugin.equals(msgEvent.getMsgPlugin()) &&
+                params.equals(msgEvent.getParams());
+    }
 }
