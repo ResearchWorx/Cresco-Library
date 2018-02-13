@@ -3,7 +3,7 @@ package com.researchworx.cresco.library.utilities;
 import com.researchworx.cresco.library.messaging.MsgEvent;
 
 import java.util.Date;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Cresco logger
@@ -25,14 +25,14 @@ public class CLogger {
     private String agent;
     private String plugin;
     private Level level;
-    private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
+    private BlockingQueue<MsgEvent> msgOutQueue;
     private Class issuingClass;
 
-    public CLogger(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
+    public CLogger(BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
         this(msgOutQueue, region, agent, plugin, Level.Info);
     }
 
-    public CLogger(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
+    public CLogger(BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
         this.region = region;
         this.agent = agent;
         this.plugin = plugin;
@@ -40,12 +40,12 @@ public class CLogger {
         this.msgOutQueue = msgOutQueue;
     }
 
-    public CLogger(Class issuingClass, ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
+    public CLogger(Class issuingClass, BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
         this(msgOutQueue, region, agent, plugin);
         this.issuingClass = issuingClass;
     }
 
-    public CLogger(Class issuingClass, ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
+    public CLogger(Class issuingClass, BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
         this(msgOutQueue, region, agent, plugin, level);
         this.issuingClass = issuingClass;
     }

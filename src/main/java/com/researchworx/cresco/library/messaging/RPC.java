@@ -2,8 +2,8 @@ package com.researchworx.cresco.library.messaging;
 
 import com.researchworx.cresco.library.utilities.CLogger;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -20,9 +20,9 @@ public class RPC {
     /** Cresco logger */
     private CLogger logger;
     /** Communication channel */
-    private ConcurrentLinkedQueue<MsgEvent> msgOutQueue;
+    private BlockingQueue<MsgEvent> msgOutQueue;
     /** Central RPC return message repository */
-    private ConcurrentMap<String, MsgEvent> rpcMap = new ConcurrentHashMap<String, MsgEvent>();
+    private ConcurrentMap<String, MsgEvent> rpcMap = new ConcurrentHashMap<>();
     /** Region of this instance */
     private String region;
     /** Agent of this instance */
@@ -38,7 +38,7 @@ public class RPC {
      * @param pluginID      Plugin ID of this instance
      * @param logger        Logger to use
      */
-    public RPC(ConcurrentLinkedQueue<MsgEvent> msgOutQueue, String region, String agent, String pluginID, CLogger logger) {
+    public RPC(BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String pluginID, CLogger logger) {
         this.logger = logger;
         this.msgOutQueue = msgOutQueue;
         this.region = region;
@@ -67,7 +67,7 @@ public class RPC {
         try {
             String callId = java.util.UUID.randomUUID().toString();
             msg.setParam("callId-" + region + "-" + agent + "-" + pluginID, callId);
-            msgOutQueue.offer(msg);
+            msgOutQueue.add(msg);
 
             int count = 0;
             while (count++ < MAX_INTERVALS) {

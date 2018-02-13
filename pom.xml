@@ -6,7 +6,7 @@
 
 	<groupId>com.researchworx.cresco</groupId>
 	<artifactId>cresco-library</artifactId>
-	<version>0.4.0</version>
+	<version>0.4.1</version>
 	<packaging>jar</packaging>
 
 	<name>Cresco Library</name>
@@ -45,8 +45,11 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk>1.7</jdk>
+		<activemq.junit.version>5.15.2</activemq.junit.version>
+		<activemq.version>5.15.2</activemq.version>
 		<gson.version>2.6.2</gson.version>
 		<commons.version>1.10</commons.version>
+		<junit.version>4.12</junit.version>
 		<maven.compiler.version>3.5.1</maven.compiler.version>
 		<maven.gpg.version>1.6</maven.gpg.version>
 		<maven.javadoc.version>2.10.3</maven.javadoc.version>
@@ -64,6 +67,36 @@
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
 			<version>${commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq.tooling</groupId>
+			<artifactId>activemq-junit</artifactId>
+			<version>${activemq.junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+			<version>${activemq.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.25</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
