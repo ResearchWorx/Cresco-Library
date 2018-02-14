@@ -88,7 +88,7 @@ public class WatchDog {
         enabled.setParam("dst_region", region);
         enabled.setParam("dst_agent", agent);
         enabled.setParam("watchdogtimer", String.valueOf(interval));
-        enabled.setCompressedParam("config", config.getConfigAsJSON());
+        enabled.setParam("config", config.getConfigAsJSON());
         enabled.setParam("action", "enable");
         logger.log(enabled);
         timer = new Timer();
