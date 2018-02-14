@@ -74,7 +74,6 @@ public class MsgEventTest {
     public void Test3_MsgEventMarshalling() {
         Gson gson = new Gson();
         Assert.assertNotNull(gson);
-        // ToDo: String _ = gson.toJson(MsgEvent _)
         MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, "tst_src_region",
                 "tst_src_agent", "tst_src_plugin", "Test Message");
         msgEventA.setParam("src_region", "test_src_region");
@@ -88,9 +87,13 @@ public class MsgEventTest {
         String msgEventAString = gson.toJson(msgEventA);
         Assert.assertNotNull(msgEventAString);
         logger.info(msgEventAString);
-        // ToDo: MsgEvent _ = gson.fromJson(String _, MsgEvent.class)
         MsgEvent msgEventB = gson.fromJson(msgEventAString, MsgEvent.class);
+        logger.info(msgEventB.getParams().toString());
         Assert.assertNotNull(msgEventB);
         Assert.assertEquals(msgEventA, msgEventB);
     }
+
+    // ToDo: Test ActiveMQ Queue Transport Equality
+
+    // ToDo:
 }

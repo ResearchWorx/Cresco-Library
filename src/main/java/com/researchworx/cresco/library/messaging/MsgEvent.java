@@ -13,15 +13,20 @@ import java.util.zip.GZIPOutputStream;
 
 @XmlRootElement
 public class MsgEvent {
+    private static CAddr myAddress = new CAddr("my_region", "my_agent", "my_plugin");
+
     public enum Type {
         CONFIG, DISCOVER, ERROR, EXEC, GC, INFO, KPI, LOG, WATCHDOG
     }
 
     private Type msgType;
+    private CAddr source;
+    private CAddr destination;
+    private Map<String, String> params;
+
     private String msgRegion;
     private String msgAgent;
     private String msgPlugin;
-    private Map<String, String> params;
 
     public MsgEvent() {
 
@@ -32,7 +37,9 @@ public class MsgEvent {
         this.msgRegion = msgRegion;
         this.msgAgent = msgAgent;
         this.msgPlugin = msgPlugin;
-        this.params = new HashMap<String, String>();
+        this.params = new HashMap<>();
+        this.source = new CAddr("source_region", "source_agent", "source_plugin");
+        this.destination = new CAddr("destination_region", "destination_agent", "destination_plugin");
         params.put("msg", msgBody);
     }
 
@@ -42,19 +49,45 @@ public class MsgEvent {
         this.msgAgent = msgAgent;
         this.msgPlugin = msgPlugin;
         this.params = params;
-        this.params = new HashMap<String, String>(params);
+        this.params = new HashMap<>(params);
     }
 
-    public void setSrc(String region, String agent, String plugin) {
+    @XmlJavaTypeAdapter(CAddrAdapter.class)
+    public CAddr getSource() {
+        return source;
+    }
+    public void setSource(String region) {
         setParam("src_region", region);
+        this.source = new CAddr(region);
+    }
+    public void setSource(String region, String agent) {
+        setSource(region);
         setParam("src_agent", agent);
+        this.source = new CAddr(region, agent);
+    }
+    public void setSource(String region, String agent, String plugin) {
+        setSource(region, agent);
         setParam("src_plugin", plugin);
+        this.source = new CAddr(region, agent, plugin);
     }
 
-    public void setDst(String region, String agent, String plugin) {
+    @XmlJavaTypeAdapter(CAddrAdapter.class)
+    public CAddr getDestination() {
+        return destination;
+    }
+    public void setDestination(String region) {
         setParam("dst_region", region);
+        this.destination = new CAddr(region);
+    }
+    public void setDestination(String region, String agent) {
+        setDestination(region);
         setParam("dst_agent", agent);
+        this.destination = new CAddr(region, agent);
+    }
+    public void setDestination(String region, String agent, String plugin) {
+        setDestination(region, agent);
         setParam("dst_plugin", plugin);
+        this.destination = new CAddr(region, agent, plugin);
     }
 
     public void setReturn() {
@@ -81,28 +114,28 @@ public class MsgEvent {
         } else {
             removeParam("dst_region");
         }
-        setMsgRegion(src_region);
+        //setMsgRegion(src_region);
         if (src_agent != null) {
             setParam("dst_agent", src_agent);
         } else {
             removeParam("dst_agent");
         }
-        setMsgAgent(src_agent);
+        //setMsgAgent(src_agent);
         if (src_plugin != null) {
             setParam("dst_plugin", src_plugin);
         } else {
             removeParam("dst_plugin");
         }
-        setMsgPlugin(src_plugin);
+        //setMsgPlugin(src_plugin);
     }
 
-    public String getMsgBody() {
+    /*public String getMsgBody() {
         return params.get("msg");
     }
 
     public void setMsgBody(String msgBody) {
         params.put("msg", msgBody);
-    }
+    }*/
 
     @XmlJavaTypeAdapter(MsgEventTypesAdapter.class)
     public Type getMsgType() {
@@ -113,7 +146,7 @@ public class MsgEvent {
         this.msgType = msgType;
     }
 
-    public String getMsgRegion() {
+    /*public String getMsgRegion() {
         return msgRegion;
     }
 
@@ -135,35 +168,48 @@ public class MsgEvent {
 
     public void setMsgPlugin(String msgPlugin) {
         this.msgPlugin = msgPlugin;
-    }
+    }*/
 
     @XmlJavaTypeAdapter(MsgEventParamsAdapter.class)
     public Map<String, String> getParams() {
-        return params;
+        Map<String, String> uncompressedParams = new HashMap<>();
+        for (String key : params.keySet()) {
+            uncompressedParams.put(key, stringUncompress(params.get(key)));
+        }
+        return uncompressedParams;
     }
 
     public void setParams(Map<String, String> params) {
-        this.params = params;
+        this.params = new HashMap<>();
+        for (String key : params.keySet()) {
+            this.params.put(key, stringCompress(params.get(key)));
+        }
+        //this.params = params;
     }
 
     public String getParam(String key) {
-        return params.get(key);
+        //return params.get(key);
+        return stringUncompress(params.get(key));
     }
 
     public void setParam(String key, String value) {
-        params.put(key, value);
+        params.put(key, stringCompress(value));
     }
 
     public void removeParam(String key) {
         params.remove(key);
     }
 
+    @Deprecated
     public void setCompressedParam(String key, String value) {
-        params.put(key, DatatypeConverter.printBase64Binary(stringCompress(value)));
+        setParam(key, value);
+        //params.put(key, DatatypeConverter.printBase64Binary(stringCompress(value)));
     }
 
+    @Deprecated
     public String getCompressedParam(String key) {
-        String value = params.get(key);
+        return getParam(key);
+        /*String value = params.get(key);
         if (value == null)
             return null;
         try {
@@ -173,10 +219,48 @@ public class MsgEvent {
             return new Scanner(is,"UTF-8").useDelimiter("\\A").next();
         } catch (IOException e) {
             return null;
+        }*/
+    }
+
+    private String stringUncompress(String compressed) {
+        if (compressed == null)
+            return null;
+        try {
+            byte[] exportDataRawCompressed = DatatypeConverter.parseBase64Binary(compressed);
+            InputStream iss = new ByteArrayInputStream(exportDataRawCompressed);
+            InputStream is = new GZIPInputStream(iss);
+            return new Scanner(is,"UTF-8").useDelimiter("\\A").next();
+        } catch (IOException e) {
+            return null;
         }
     }
 
-    public byte[] stringCompress(String str) {
+    private String stringCompress(String str) {
+        byte[] dataToCompress = str.getBytes(StandardCharsets.UTF_8);
+        byte[] compressedData;
+        try {
+            ByteArrayOutputStream byteStream =
+                    new ByteArrayOutputStream(dataToCompress.length);
+            try {
+                GZIPOutputStream zipStream =
+                        new GZIPOutputStream(byteStream);
+                try {
+                    zipStream.write(dataToCompress);
+                }
+                finally {
+                    zipStream.close();
+                }
+            } finally {
+                byteStream.close();
+            }
+            compressedData = byteStream.toByteArray();
+        } catch(Exception e) {
+            return null;
+        }
+        return DatatypeConverter.printBase64Binary(compressedData);
+    }
+
+    /*private byte[] stringCompress(String str) {
         byte[] dataToCompress = str.getBytes(StandardCharsets.UTF_8);
         byte[] compressedData;
         try {
@@ -199,7 +283,7 @@ public class MsgEvent {
             return null;
         }
         return compressedData;
-    }
+    }*/
 
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -208,10 +292,10 @@ public class MsgEvent {
 
         MsgEvent msgEvent = (MsgEvent)o;
 
-        return msgType.equals(msgEvent.getMsgType()) &&
-                msgRegion.equals(msgEvent.getMsgRegion()) &&
-                msgAgent.equals(msgEvent.getMsgAgent()) &&
-                msgPlugin.equals(msgEvent.getMsgPlugin()) &&
-                params.equals(msgEvent.getParams());
+        return getMsgType().equals(msgEvent.getMsgType()) &&
+                //getMsgRegion().equals(msgEvent.getMsgRegion()) &&
+                //getMsgAgent().equals(msgEvent.getMsgAgent()) &&
+                //getMsgPlugin().equals(msgEvent.getMsgPlugin()) &&
+                getParams().equals(msgEvent.getParams());
     }
 }
