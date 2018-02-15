@@ -245,8 +245,12 @@ public class MsgEvent {
 
     @Override
     public String toString() {
-        return "{type=" + getMsgType() + ", source=" + getSource() + ", destination=" + getDestination() +
-                ", params=" + getParams() + "}";
+        return "{" +
+                "type=" + getMsgType() +
+                ", source=" + getSource() +
+                ", destination=" + getDestination() +
+                ", params=" + getParams() +
+                "}";
     }
 
     private String stringUncompress(String compressed) {
