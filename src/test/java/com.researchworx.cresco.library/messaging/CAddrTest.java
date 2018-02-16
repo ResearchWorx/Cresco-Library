@@ -13,8 +13,15 @@ public class CAddrTest {
 
     @Test
     public void Test1_Equality() {
-        CAddr cAddrA = new CAddr("some_region", "some_agent", "some_plugin");
-        CAddr cAddrB = new CAddr("some_region", "some_agent", "some_plugin");
+        String[] address = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
+        CAddr cAddrA = new CAddr(address[0]);
+        CAddr cAddrB = new CAddr(address[0]);
+        Assert.assertEquals(cAddrA, cAddrB);
+        cAddrA = new CAddr(address[0], address[1]);
+        cAddrB = new CAddr(address[0], address[1]);
+        Assert.assertEquals(cAddrA, cAddrB);
+        cAddrA = new CAddr(address[0], address[1], address[2]);
+        cAddrB = new CAddr(address[0], address[1], address[2]);
         Assert.assertEquals(cAddrA, cAddrB);
     }
 }

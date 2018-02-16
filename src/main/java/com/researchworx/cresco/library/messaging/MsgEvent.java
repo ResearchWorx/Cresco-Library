@@ -19,10 +19,11 @@ import java.util.zip.GZIPOutputStream;
  */
 @XmlRootElement
 public class MsgEvent {
+    /** Static CAddr for setting source for all MsgEvents generated */
     private static CAddr myAddress = null;
 
-    public static void removeMyAddress() {
-        MsgEvent.myAddress = null;
+    public static CAddr getMyAddress() {
+        return MsgEvent.myAddress;
     }
 
     public static void setMyAddress(String region) {
@@ -37,8 +38,8 @@ public class MsgEvent {
         MsgEvent.myAddress = new CAddr(region, agent, plugin);
     }
 
-    public static CAddr getMyAddress() {
-        return MsgEvent.myAddress;
+    public static void removeMyAddress() {
+        MsgEvent.myAddress = null;
     }
 
     public enum Type {
@@ -48,6 +49,8 @@ public class MsgEvent {
     private Type msgType = Type.INFO;
     private CAddr source = null;
     private CAddr destination = null;
+    private CAddr rpc = null;
+    private String callId = null;
     private Map<String, String> params = new HashMap<>();
 
     public MsgEvent() {
@@ -84,6 +87,7 @@ public class MsgEvent {
     public CAddr getSource() {
         return source;
     }
+
     public void setSource(CAddr address) {
         if (address == null)
             return;
@@ -95,15 +99,18 @@ public class MsgEvent {
             setParam("src_plugin", address.getPlugin());
         this.source = new CAddr(address);
     }
+
     public void setSource(String region) {
         setParam("src_region", region);
         this.source = new CAddr(region);
     }
+
     public void setSource(String region, String agent) {
         setParam("src_region", region);
         setParam("src_agent", agent);
         this.source = new CAddr(region, agent);
     }
+
     public void setSource(String region, String agent, String plugin) {
         setParam("src_region", region);
         setParam("src_agent", agent);
@@ -115,6 +122,7 @@ public class MsgEvent {
     public CAddr getDestination() {
         return destination;
     }
+
     public void setDestination(CAddr address) {
         if (address == null)
             return;
@@ -126,20 +134,34 @@ public class MsgEvent {
             setParam("dst_plugin", address.getPlugin());
         this.destination = new CAddr(address);
     }
+
     public void setDestination(String region) {
         setParam("dst_region", region);
         this.destination = new CAddr(region);
     }
+
     public void setDestination(String region, String agent) {
         setParam("dst_region", region);
         setParam("dst_agent", agent);
         this.destination = new CAddr(region, agent);
     }
+
     public void setDestination(String region, String agent, String plugin) {
         setParam("dst_region", region);
         setParam("dst_agent", agent);
         setParam("dst_plugin", plugin);
         this.destination = new CAddr(region, agent, plugin);
+    }
+
+    public void upgrade() {
+        if (source == null && getParam("src_region") != null) {
+            this.source = new CAddr(getParam("src_region"), getParam("src_agent"),
+                    getParam("src_plugin"));
+        }
+        if (destination == null && getParam("dst_region") != null) {
+            this.destination = new CAddr(getParam("dst_region"), getParam("dst_agent"),
+                    getParam("dst_plugin"));
+        }
     }
 
     public void setReturn() {
@@ -197,7 +219,7 @@ public class MsgEvent {
     public Map<String, String> getParams() {
         Map<String, String> uncompressedParams = new HashMap<>();
         for (String key : params.keySet()) {
-            uncompressedParams.put(key, stringUncompress(params.get(key)));
+            uncompressedParams.put(key, getParam(key));
         }
         return uncompressedParams;
     }
@@ -205,7 +227,7 @@ public class MsgEvent {
     public void setParams(Map<String, String> params) {
         this.params = new HashMap<>();
         for (String key : params.keySet()) {
-            this.params.put(key, stringCompress(params.get(key)));
+            setParam(key, params.get(key));
         }
     }
 
@@ -221,16 +243,6 @@ public class MsgEvent {
         params.remove(key);
     }
 
-    @Deprecated
-    public void setCompressedParam(String key, String value) {
-        setParam(key, value);
-    }
-
-    @Deprecated
-    public String getCompressedParam(String key) {
-        return getParam(key);
-    }
-
     public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof MsgEvent)) return false;
@@ -241,6 +253,16 @@ public class MsgEvent {
                 ((getDestination() == null && msgEvent.getDestination() == null) ||
                         getDestination().equals(msgEvent.getDestination())) &&
                 getParams().equals(msgEvent.getParams());
+    }
+
+    @Deprecated
+    public void setCompressedParam(String key, String value) {
+        setParam(key, value);
+    }
+
+    @Deprecated
+    public String getCompressedParam(String key) {
+        return getParam(key);
     }
 
     @Override

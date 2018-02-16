@@ -116,9 +116,12 @@ public class CAddr {
         if (o == this) return true;
         if (!(o instanceof CAddr)) return false;
         CAddr cAddr = (CAddr)o;
-        return getRegion().equals(cAddr.getRegion()) &&
-                getAgent().equals(cAddr.getAgent()) &&
-                getPlugin().equals(cAddr.getPlugin());
+        return ((getRegion() == null && cAddr.getRegion() == null) ||
+                getRegion().equals(cAddr.getRegion())) &&
+                ((getAgent() == null && cAddr.getAgent() == null) ||
+                        getAgent().equals(cAddr.getAgent())) &&
+                ((getPlugin() == null && cAddr.getPlugin() == null) ||
+                        getPlugin().equals(cAddr.getPlugin()));
     }
 
     @Override
