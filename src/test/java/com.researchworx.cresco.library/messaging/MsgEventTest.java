@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MsgEventTest {
@@ -21,7 +23,37 @@ public class MsgEventTest {
     public EmbeddedActiveMQBroker broker = new EmbeddedActiveMQBroker();
 
     @Test
-    public void Test1_Equality() {
+    public void Test1_CompressedParams() {
+        logger.info("Compressed Parameters Test");
+        Map<String, String> params = new HashMap<>();
+        params.put("paramA", "paramAvalue");
+        params.put("paramB", "paramBvalue");
+        params.put("paramC", "paramCvalue");
+        params.put("paramD", Integer.toString(1));
+        params.put("paramE", Boolean.toString(false));
+        logger.info("\tParameters:\t\t\t\t{}", params);
+        MsgEvent msgEventA = new MsgEvent();
+        logger.info("\tOriginal MsgEvent:\t\t\t{}", msgEventA);
+        for (Map.Entry<String, String> entry : params.entrySet())
+            msgEventA.setParam(entry.getKey(), entry.getValue());
+        logger.info("\tMsgEvent Params Set w/ setParam:\t{}", msgEventA);
+        for (Map.Entry<String, String> entry : params.entrySet())
+            Assert.assertEquals(msgEventA.getParam(entry.getKey()), entry.getValue());
+        Map<String, String> msgEventAParams = msgEventA.getParams();
+        for (Map.Entry<String, String> entry : msgEventAParams.entrySet())
+            Assert.assertEquals(params.get(entry.getKey()), entry.getValue());
+        MsgEvent msgEventB = new MsgEvent();
+        msgEventB.setParams(params);
+        logger.info("\tMsgEvent Params Set w/ setParams:\t{}", msgEventB);
+        for (Map.Entry<String, String> entry : params.entrySet())
+            Assert.assertEquals(msgEventB.getParam(entry.getKey()), entry.getValue());
+        Map<String, String> msgEventBParams = msgEventB.getParams();
+        for (Map.Entry<String, String> entry : msgEventBParams.entrySet())
+            Assert.assertEquals(params.get(entry.getKey()), entry.getValue());
+    }
+
+    @Test
+    public void Test2_Equality() {
         logger.info("Equality Test");
         MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, "tst_src_region",
                 "tst_src_agent", "tst_src_plugin");
@@ -49,7 +81,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test2_Marshalling() {
+    public void Test3_Marshalling() {
         logger.info("Marshalling Test");
         Gson gson = new Gson();
         Assert.assertNotNull(gson);
@@ -74,7 +106,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test3_MyAddress() {
+    public void Test4_MyAddress() {
         logger.info("MyAddress Test");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
@@ -128,7 +160,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test4_SetReturn() {
+    public void Test5_SetReturn() {
         logger.info("SetReturn() Test");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
@@ -144,7 +176,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test5_Upgrade() {
+    public void Test6_Upgrade() {
         logger.info("Upgrade() Test");
         logger.info("\tNo old-style parameters:");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
@@ -174,7 +206,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test6_TextMessage() throws Exception {
+    public void Test7_TextMessage() throws Exception {
         logger.info("TextMessage Test");
         final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
                 "vm://localhost?broker.persistent=false");
@@ -195,7 +227,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test7_ActiveMQTransportEquality() throws Exception {
+    public void Test8_ActiveMQTransportEquality() throws Exception {
         logger.info("ActiveMQ Queue Transport Test");
         Gson gson = new Gson();
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};

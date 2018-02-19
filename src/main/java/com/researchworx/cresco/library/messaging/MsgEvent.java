@@ -51,6 +51,7 @@ public class MsgEvent {
     private CAddr destination = null;
     private CAddr rpc = null;
     private String callId = null;
+    // ToDo: Add methods for working with RPC
     private Map<String, String> params = new HashMap<>();
 
     public MsgEvent() {
