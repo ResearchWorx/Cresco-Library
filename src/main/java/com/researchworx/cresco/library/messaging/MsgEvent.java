@@ -19,41 +19,83 @@ import java.util.zip.GZIPOutputStream;
  */
 @XmlRootElement
 public class MsgEvent {
-    /** Static CAddr for setting source for all MsgEvents generated */
+    /** Static address for setting source for all MsgEvents generated */
     private static CAddr myAddress = null;
 
+    /**
+     * myAddress getter
+     * @return CAddr    Static address of this instance for MsgEvent
+     */
     public static CAddr getMyAddress() {
         return MsgEvent.myAddress;
     }
 
+    /**
+     * myAddress setter
+     * @param address   Static address of MsgEvent
+     */
+    public static void setMyAddress(CAddr address) {
+        MsgEvent.myAddress = new CAddr(address);
+    }
+
+    /**
+     * myAddress setter
+     * @param region    Region of static address for MsgEvent
+     */
     public static void setMyAddress(String region) {
         MsgEvent.myAddress = new CAddr(region);
     }
 
+    /**
+     * myAddress setter
+     * @param region    Region of static address for MsgEvent
+     * @param agent     Agent of static address for MsgEvent
+     */
     public static void setMyAddress(String region, String agent) {
         MsgEvent.myAddress = new CAddr(region, agent);
     }
 
+    /**
+     * myAddress setter
+     * @param region    Region of static address for MsgEvent
+     * @param agent     Agent of static address for MsgEvent
+     * @param plugin    Plugin of static address for MsgEvent
+     */
     public static void setMyAddress(String region, String agent, String plugin) {
         MsgEvent.myAddress = new CAddr(region, agent, plugin);
     }
 
+    /**
+     * Clears/removes static address for MsgEvent
+     */
     public static void removeMyAddress() {
         MsgEvent.myAddress = null;
     }
 
+    /**
+     * MsgEvent types enumeration
+     */
     public enum Type {
         CONFIG, DISCOVER, ERROR, EXEC, GC, INFO, KPI, LOG, WATCHDOG
     }
 
+    /** Type of message */
     private Type msgType = Type.INFO;
+    /** Source address of message */
     private CAddr source = null;
+    /** Destination address of message */
     private CAddr destination = null;
+    /** RPC origination address of message (if RPC) */
     private CAddr rpc = null;
+    /** RPC call ID for message identification */
     private String callId = null;
     // ToDo: Add methods for working with RPC
+    /** Custom message parameters */
     private Map<String, String> params = new HashMap<>();
 
+    /**
+     * Default constructor
+     */
     public MsgEvent() {
         if (myAddress != null) {
             this.source = new CAddr(myAddress);
@@ -63,6 +105,37 @@ public class MsgEvent {
         }
     }
 
+    /**
+     * Constructor
+     * @param destination   (CAddr) Destination address
+     */
+    public MsgEvent(CAddr destination) {
+        this();
+        setDestination(destination);
+    }
+
+    /**
+     * Constructor
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param destination   (CAddr) Destination address
+     */
+    public MsgEvent(Type msgType, CAddr destination) {
+        this(destination);
+        setMsgType(msgType);
+    }
+
+    /**
+     * Constructor
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param destination   (CAddr) Destination address
+     * @param params        (Map<String,String>) HashMap of custom message parameters
+     */
+    public MsgEvent(Type msgType, CAddr destination, Map<String, String> params) {
+        this(msgType, destination);
+        setParams(params);
+    }
+
+    @Deprecated
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin) {
         this();
         setMsgType(msgType);
@@ -77,11 +150,12 @@ public class MsgEvent {
         setParam("msg", msgBody);
     }
 
+    @Deprecated
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin, Map<String, String> params) {
         this();
-        setParams(params);
         setMsgType(msgType);
         setDestination(dstRegion, dstAgent, dstPlugin);
+        setParams(params);
     }
 
     @XmlJavaTypeAdapter(CAddrAdapter.class)
