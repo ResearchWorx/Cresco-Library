@@ -89,7 +89,6 @@ public class MsgEvent {
     private CAddr rpc = null;
     /** RPC call ID for message identification */
     private String callId = null;
-    // ToDo: Add methods for working with RPC
     /** Custom message parameters */
     private Map<String, String> params = new HashMap<>();
 
@@ -135,6 +134,13 @@ public class MsgEvent {
         setParams(params);
     }
 
+    /**
+     * Constructor (Deprecated)
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Unused region name
+     * @param dstAgent      Unused agent name
+     * @param dstPlugin     Unused plugin name
+     */
     @Deprecated
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin) {
         this();
@@ -142,6 +148,14 @@ public class MsgEvent {
         setDestination(dstRegion, dstAgent, dstPlugin);
     }
 
+    /**
+     * Constructor (Deprecated)
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Unused region name
+     * @param dstAgent      Unused agent name
+     * @param dstPlugin     Unused plugin name
+     * @param msgBody       Message body parameter
+     */
     @Deprecated
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin, String msgBody) {
         this();
@@ -150,6 +164,14 @@ public class MsgEvent {
         setParam("msg", msgBody);
     }
 
+    /**
+     * Constructor (Deprecated)
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Unused region name
+     * @param dstAgent      Unused agent name
+     * @param dstPlugin     Unused plugin name
+     * @param params        Message custom parameters
+     */
     @Deprecated
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin, Map<String, String> params) {
         this();
@@ -158,11 +180,19 @@ public class MsgEvent {
         setParams(params);
     }
 
+    /**
+     * Message source getter
+     * @return      (CAddr) Message source address
+     */
     @XmlJavaTypeAdapter(CAddrAdapter.class)
     public CAddr getSource() {
         return source;
     }
 
+    /**
+     * Message source setter
+     * @param address   (CAddr) Source address
+     */
     public void setSource(CAddr address) {
         if (address == null)
             return;
@@ -175,17 +205,32 @@ public class MsgEvent {
         this.source = new CAddr(address);
     }
 
+    /**
+     * Message source setter
+     * @param region    Message source region
+     */
     public void setSource(String region) {
         setParam("src_region", region);
         this.source = new CAddr(region);
     }
 
+    /**
+     * Message source setter
+     * @param region    Message source region
+     * @param agent     Message source agent
+     */
     public void setSource(String region, String agent) {
         setParam("src_region", region);
         setParam("src_agent", agent);
         this.source = new CAddr(region, agent);
     }
 
+    /**
+     * Message source setter
+     * @param region    Message source region
+     * @param agent     Message source agent
+     * @param plugin    Message source plugin
+     */
     public void setSource(String region, String agent, String plugin) {
         setParam("src_region", region);
         setParam("src_agent", agent);
@@ -193,11 +238,19 @@ public class MsgEvent {
         this.source = new CAddr(region, agent, plugin);
     }
 
+    /**
+     * Message destination getter
+     * @return     (CAddr) Message destination address
+     */
     @XmlJavaTypeAdapter(CAddrAdapter.class)
     public CAddr getDestination() {
         return destination;
     }
 
+    /**
+     * Message destination setter
+     * @param address   (CAddr) Destination address
+     */
     public void setDestination(CAddr address) {
         if (address == null)
             return;
@@ -210,17 +263,32 @@ public class MsgEvent {
         this.destination = new CAddr(address);
     }
 
+    /**
+     * Message destination setter
+     * @param region    Message destination region
+     */
     public void setDestination(String region) {
         setParam("dst_region", region);
         this.destination = new CAddr(region);
     }
 
+    /**
+     * Message destination setter
+     * @param region    Message destination region
+     * @param agent     Message destination agent
+     */
     public void setDestination(String region, String agent) {
         setParam("dst_region", region);
         setParam("dst_agent", agent);
         this.destination = new CAddr(region, agent);
     }
 
+    /**
+     * Message destination setter
+     * @param region    Message destination region
+     * @param agent     Message destination agent
+     * @param plugin    Message destination plugin
+     */
     public void setDestination(String region, String agent, String plugin) {
         setParam("dst_region", region);
         setParam("dst_agent", agent);
@@ -228,6 +296,12 @@ public class MsgEvent {
         this.destination = new CAddr(region, agent, plugin);
     }
 
+    // ToDo: Add methods for working with RPC
+
+    /**
+     * Upgrade an old-style addressed message to the new CAddr style
+     * (This should be used in the Consumer on the Controller Plugin only)
+     */
     public void upgrade() {
         if (source == null && getParam("src_region") != null) {
             this.source = new CAddr(getParam("src_region"), getParam("src_agent"),
@@ -239,13 +313,18 @@ public class MsgEvent {
         }
     }
 
+    /**
+     * Swaps the message source and destination for returning the message
+     */
     public void setReturn() {
+        // CAddr Style
         CAddr oldSource = getSource();
         CAddr oldDestination = getDestination();
 
         this.source = new CAddr(oldDestination);
         this.destination = new CAddr(oldSource);
 
+        // Old Style
         String src_region = getParam("src_region");
         String src_agent = getParam("src_agent");
         String src_plugin = getParam("src_plugin");
@@ -281,15 +360,27 @@ public class MsgEvent {
         }
     }
 
+    /**
+     * Message type getter
+     * @return      (MsgEvent.Type) Message type
+     */
     @XmlJavaTypeAdapter(MsgEventTypesAdapter.class)
     public Type getMsgType() {
         return msgType;
     }
 
+    /**
+     * Message type setter
+     * @param msgType   (MsgEvent.Type) Message type
+     */
     public void setMsgType(Type msgType) {
         this.msgType = msgType;
     }
 
+    /**
+     * Message payload getter
+     * @return      (Map<String,String>) Message payload
+     */
     @XmlJavaTypeAdapter(MsgEventParamsAdapter.class)
     public Map<String, String> getParams() {
         Map<String, String> uncompressedParams = new HashMap<>();
@@ -299,6 +390,10 @@ public class MsgEvent {
         return uncompressedParams;
     }
 
+    /**
+     * Message payload setter
+     * @param params    (Map<String,String>) Message payload
+     */
     public void setParams(Map<String, String> params) {
         this.params = new HashMap<>();
         for (String key : params.keySet()) {
@@ -306,18 +401,59 @@ public class MsgEvent {
         }
     }
 
+    /**
+     * Message payload item getter
+     * @param key   Key of payload item to get
+     * @return      Payload value at key
+     */
     public String getParam(String key) {
         return stringUncompress(params.get(key));
     }
 
+    /**
+     * Compressed message payload item getter
+     *    DEPRECATED: All payload items are compressed/uncompressed by default since 0.4.2
+     * @param key   Key of payload item to get
+     * @return      Payload value at key
+     */
+    @Deprecated
+    public String getCompressedParam(String key) {
+        return getParam(key);
+    }
+
+    /**
+     * Message payload item setter
+     * @param key       Key of payload item to set
+     * @param value     Payload value at key
+     */
     public void setParam(String key, String value) {
         params.put(key, stringCompress(value));
     }
 
+    /**
+     * Compressed message payload item setter
+     *    DEPRECATED: All payload items are compressed/uncompressed by default since 0.4.2
+     * @param key       Key of payload item to set
+     * @param value     Payload value at key
+     */
+    @Deprecated
+    public void setCompressedParam(String key, String value) {
+        setParam(key, value);
+    }
+
+    /**
+     * Removes message payload item
+     * @param key       Key of payload item to remove
+     */
     public void removeParam(String key) {
         params.remove(key);
     }
 
+    /**
+     * Equality method
+     * @param o     Other MsgEvent
+     * @return      Whether the content of the two MsgEvents are equal
+     */
     public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof MsgEvent)) return false;
@@ -330,16 +466,10 @@ public class MsgEvent {
                 getParams().equals(msgEvent.getParams());
     }
 
-    @Deprecated
-    public void setCompressedParam(String key, String value) {
-        setParam(key, value);
-    }
-
-    @Deprecated
-    public String getCompressedParam(String key) {
-        return getParam(key);
-    }
-
+    /**
+     * Converts MsgEvent to a string
+     * @return      String representation of the MsgEvent
+     */
     @Override
     public String toString() {
         return "{" +
@@ -350,6 +480,11 @@ public class MsgEvent {
                 "}";
     }
 
+    /**
+     * Uncompresses a given String
+     * @param compressed    String to uncompress
+     * @return              Uncompressed String
+     */
     private String stringUncompress(String compressed) {
         if (compressed == null)
             return null;
@@ -363,6 +498,11 @@ public class MsgEvent {
         }
     }
 
+    /**
+     * Compresses a given String
+     * @param str   String to compress
+     * @return      Compressed String
+     */
     private String stringCompress(String str) {
         byte[] dataToCompress = str.getBytes(StandardCharsets.UTF_8);
         byte[] compressedData;
