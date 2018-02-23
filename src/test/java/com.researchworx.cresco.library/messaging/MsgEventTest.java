@@ -31,9 +31,9 @@ public class MsgEventTest {
         params.put("paramC", "paramCvalue");
         params.put("paramD", Integer.toString(1));
         params.put("paramE", Boolean.toString(false));
-        logger.info("\tParameters:\t\t\t\t{}", params);
+        logger.info("\tParameters:\t\t\t\t\t\t\t{}", params);
         MsgEvent msgEventA = new MsgEvent();
-        logger.info("\tOriginal MsgEvent:\t\t\t{}", msgEventA);
+        logger.info("\tOriginal MsgEvent:\t\t\t\t\t{}", msgEventA);
         for (Map.Entry<String, String> entry : params.entrySet())
             msgEventA.setParam(entry.getKey(), entry.getValue());
         logger.info("\tMsgEvent Params Set w/ setParam:\t{}", msgEventA);
@@ -50,6 +50,88 @@ public class MsgEventTest {
         Map<String, String> msgEventBParams = msgEventB.getParams();
         for (Map.Entry<String, String> entry : msgEventBParams.entrySet())
             Assert.assertEquals(params.get(entry.getKey()), entry.getValue());
+    }
+
+    @Test
+    public void Test2_Addresses() {
+        logger.info("Address Accessor Test");
+        String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
+        String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
+        logger.info("\tSource Address:\t\t\t\t\t\t\t{}, {}, {}", src[0], src[1], src[2]);
+        logger.info("\tDestination Address:\t\t\t\t\t{}, {}, {}", dst[0], dst[1], dst[2]);
+        MsgEvent msgEventA = new MsgEvent();
+        msgEventA.setSource(src[0]);
+        logger.info("\tMsgEvent (only source region):\t\t\t{}", msgEventA);
+        Assert.assertEquals(msgEventA.getSourceRegion(), src[0]);
+        Assert.assertEquals(msgEventA.getSource().getRegion(), src[0]);
+        Assert.assertEquals(msgEventA.getParam("src_region"), src[0]);
+        Assert.assertNull(msgEventA.getSourceAgent());
+        Assert.assertNull(msgEventA.getSource().getAgent());
+        Assert.assertNull(msgEventA.getParam("src_agent"));
+        Assert.assertNull(msgEventA.getSourcePlugin());
+        Assert.assertNull(msgEventA.getSource().getPlugin());
+        Assert.assertNull(msgEventA.getParam("src_plugin"));
+        msgEventA = new MsgEvent();
+        msgEventA.setSource(src[0], src[1]);
+        logger.info("\tMsgEvent (source region & agent):\t\t{}", msgEventA);
+        Assert.assertEquals(msgEventA.getSourceRegion(), src[0]);
+        Assert.assertEquals(msgEventA.getSource().getRegion(), src[0]);
+        Assert.assertEquals(msgEventA.getParam("src_region"), src[0]);
+        Assert.assertEquals(msgEventA.getSourceAgent(), src[1]);
+        Assert.assertEquals(msgEventA.getSource().getAgent(), src[1]);
+        Assert.assertEquals(msgEventA.getParam("src_agent"), src[1]);
+        Assert.assertNull(msgEventA.getSourcePlugin());
+        Assert.assertNull(msgEventA.getSource().getPlugin());
+        Assert.assertNull(msgEventA.getParam("src_plugin"));
+        msgEventA = new MsgEvent();
+        msgEventA.setSource(src[0], src[1], src[2]);
+        logger.info("\tMsgEvent (full source address):\t\t\t{}", msgEventA);
+        Assert.assertEquals(msgEventA.getSourceRegion(), src[0]);
+        Assert.assertEquals(msgEventA.getSource().getRegion(), src[0]);
+        Assert.assertEquals(msgEventA.getParam("src_region"), src[0]);
+        Assert.assertEquals(msgEventA.getSourceAgent(), src[1]);
+        Assert.assertEquals(msgEventA.getSource().getAgent(), src[1]);
+        Assert.assertEquals(msgEventA.getParam("src_agent"), src[1]);
+        Assert.assertEquals(msgEventA.getSourcePlugin(), src[2]);
+        Assert.assertEquals(msgEventA.getSource().getPlugin(), src[2]);
+        Assert.assertEquals(msgEventA.getParam("src_plugin"), src[2]);
+
+        msgEventA = new MsgEvent();
+        msgEventA.setDestination(dst[0]);
+        logger.info("\tMsgEvent (only destination region):\t\t{}", msgEventA);
+        Assert.assertEquals(msgEventA.getDestinationRegion(), dst[0]);
+        Assert.assertEquals(msgEventA.getDestination().getRegion(), dst[0]);
+        Assert.assertEquals(msgEventA.getParam("dst_region"), dst[0]);
+        Assert.assertNull(msgEventA.getDestinationAgent());
+        Assert.assertNull(msgEventA.getDestination().getAgent());
+        Assert.assertNull(msgEventA.getParam("dst_agent"));
+        Assert.assertNull(msgEventA.getSourcePlugin());
+        Assert.assertNull(msgEventA.getDestination().getPlugin());
+        Assert.assertNull(msgEventA.getParam("dst_plugin"));
+        msgEventA = new MsgEvent();
+        msgEventA.setDestination(dst[0], dst[1]);
+        logger.info("\tMsgEvent (destination region & agent):\t{}", msgEventA);
+        Assert.assertEquals(msgEventA.getDestinationRegion(), dst[0]);
+        Assert.assertEquals(msgEventA.getDestination().getRegion(), dst[0]);
+        Assert.assertEquals(msgEventA.getParam("dst_region"), dst[0]);
+        Assert.assertEquals(msgEventA.getDestinationAgent(), dst[1]);
+        Assert.assertEquals(msgEventA.getDestination().getAgent(), dst[1]);
+        Assert.assertEquals(msgEventA.getParam("dst_agent"), dst[1]);
+        Assert.assertNull(msgEventA.getSourcePlugin());
+        Assert.assertNull(msgEventA.getDestination().getPlugin());
+        Assert.assertNull(msgEventA.getParam("dst_plugin"));
+        msgEventA = new MsgEvent();
+        msgEventA.setDestination(dst[0], dst[1], dst[2]);
+        logger.info("\tMsgEvent (full destination address):\t{}", msgEventA);
+        Assert.assertEquals(msgEventA.getDestinationRegion(), dst[0]);
+        Assert.assertEquals(msgEventA.getDestination().getRegion(), dst[0]);
+        Assert.assertEquals(msgEventA.getParam("dst_region"), dst[0]);
+        Assert.assertEquals(msgEventA.getDestinationAgent(), dst[1]);
+        Assert.assertEquals(msgEventA.getDestination().getAgent(), dst[1]);
+        Assert.assertEquals(msgEventA.getParam("dst_agent"), dst[1]);
+        Assert.assertEquals(msgEventA.getDestinationPlugin(), dst[2]);
+        Assert.assertEquals(msgEventA.getDestination().getPlugin(), dst[2]);
+        Assert.assertEquals(msgEventA.getParam("dst_plugin"), dst[2]);
     }
 
     @Test

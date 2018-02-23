@@ -127,7 +127,7 @@ public class MsgEvent {
      * Constructor
      * @param msgType       (MsgEvent.Type) Message type
      * @param destination   (CAddr) Destination address
-     * @param params        (Map<String,String>) HashMap of custom message parameters
+     * @param params        (Map(String,String)) Map of custom message parameters
      */
     public MsgEvent(Type msgType, CAddr destination, Map<String, String> params) {
         this(msgType, destination);
@@ -135,13 +135,23 @@ public class MsgEvent {
     }
 
     /**
-     * Constructor (Deprecated)
-     * @param msgType       (MsgEvent.Type) Message type
-     * @param dstRegion     Unused region name
-     * @param dstAgent      Unused agent name
-     * @param dstPlugin     Unused plugin name
+     * Constructor
+     * @param dstRegion     Destination region name
+     * @param dstAgent      Destination agent name
+     * @param dstPlugin     Destination plugin name
      */
-    @Deprecated
+    public MsgEvent(String dstRegion, String dstAgent, String dstPlugin) {
+        this();
+        setDestination(dstRegion, dstAgent, dstPlugin);
+    }
+
+    /**
+     * Constructor
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Destination region name
+     * @param dstAgent      Destination agent name
+     * @param dstPlugin     Destination plugin name
+     */
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin) {
         this();
         setMsgType(msgType);
@@ -165,14 +175,13 @@ public class MsgEvent {
     }
 
     /**
-     * Constructor (Deprecated)
+     * Constructor
      * @param msgType       (MsgEvent.Type) Message type
      * @param dstRegion     Unused region name
      * @param dstAgent      Unused agent name
      * @param dstPlugin     Unused plugin name
      * @param params        Message custom parameters
      */
-    @Deprecated
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin, Map<String, String> params) {
         this();
         setMsgType(msgType);
@@ -187,6 +196,36 @@ public class MsgEvent {
     @XmlJavaTypeAdapter(CAddrAdapter.class)
     public CAddr getSource() {
         return source;
+    }
+
+    /**
+     * Message source region getter
+     * @return      Message source region name
+     */
+    public String getSourceRegion() {
+        if (source != null && source.getRegion() != null)
+            return source.getRegion();
+        return getParam("src_region");
+    }
+
+    /**
+     * Message source agent getter
+     * @return      Message source agent name
+     */
+    public String getSourceAgent() {
+        if (source != null && source.getAgent() != null)
+            return source.getAgent();
+        return getParam("src_agent");
+    }
+
+    /**
+     * Message source plugin getter
+     * @return      Message source plugin name
+     */
+    public String getSourcePlugin() {
+        if (source != null && source.getPlugin() != null)
+            return source.getPlugin();
+        return getParam("src_plugin");
     }
 
     /**
@@ -245,6 +284,36 @@ public class MsgEvent {
     @XmlJavaTypeAdapter(CAddrAdapter.class)
     public CAddr getDestination() {
         return destination;
+    }
+
+    /**
+     * Message destination region getter
+     * @return      Message destination region name
+     */
+    public String getDestinationRegion() {
+        if (destination != null && destination.getRegion() != null)
+            return destination.getRegion();
+        return getParam("dst_region");
+    }
+
+    /**
+     * Message destination agent getter
+     * @return      Message destination agent name
+     */
+    public String getDestinationAgent() {
+        if (destination != null && destination.getAgent() != null)
+            return destination.getAgent();
+        return getParam("dst_agent");
+    }
+
+    /**
+     * Message destination plugin getter
+     * @return      Message destination plugin name
+     */
+    public String getDestinationPlugin() {
+        if (destination != null && destination.getPlugin() != null)
+            return destination.getPlugin();
+        return getParam("dst_plugin");
     }
 
     /**
@@ -379,7 +448,7 @@ public class MsgEvent {
 
     /**
      * Message payload getter
-     * @return      (Map<String,String>) Message payload
+     * @return      (Map(String,String)) Message payload
      */
     @XmlJavaTypeAdapter(MsgEventParamsAdapter.class)
     public Map<String, String> getParams() {
@@ -392,7 +461,7 @@ public class MsgEvent {
 
     /**
      * Message payload setter
-     * @param params    (Map<String,String>) Message payload
+     * @param params    (Map(String,String)) Message payload
      */
     public void setParams(Map<String, String> params) {
         this.params = new HashMap<>();
