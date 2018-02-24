@@ -12,9 +12,49 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Cresco Message Event
+ * The {@code MsgEvent} class is the core unit of data transmission in the
+ * Cresco framework. The simpliest way to instantiate the class is with:
+ * <blockquote><pre>
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent--">MsgEvent</a>();
+ * </pre></blockquote>
+ * A {@code MsgEvent} object contains addresses corresponding to the source, destination,
+ * and in the case of Remote Procedure Call (RPC) messages, the message originator. Other constructors
+ * define the message type, scope, destination, and initial parameters if known:
+ * <blockquote><pre>
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(<a href="CAddr.html">CAddr</a>);
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-java.lang.String-">MsgEvent</a>("region");
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-java.lang.String-java.lang.String-">MsgEvent</a>("region", "agent");
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-java.lang.String-java.lang.String-java.lang.String-">MsgEvent</a>("region", "agent", "plugin");
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(MsgEvent.Type, <a href="CAddr.html">CAddr</a>);
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-java.lang.String-">MsgEvent</a>(MsgEvent.Type, "region");
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-java.lang.String-java.lang.String-">MsgEvent</a>(MsgEvent.Type, "region", "agent");
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-java.lang.String-java.lang.String-java.lang.String-">MsgEvent</a>(MsgEvent.Type, "region", "agent", "plugin");
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-java.util.Map-">MsgEvent</a>(MsgEvent.Type, <a href="CAddr.html">CAddr</a>, Map);
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-java.lang.String-java.util.Map-">MsgEvent</a>(MsgEvent.Type, "region", Map);
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-java.lang.String-java.lang.String-java.util.Map-">MsgEvent</a>(MsgEvent.Type, "region", "agent", Map);
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-java.lang.String-java.lang.String-java.lang.String-java.util.Map-">MsgEvent</a>(MsgEvent.Type, "region", "agent", "plugin", Map);
+ * </pre></blockquote>
+ * The source can
+ * be set manually for each new {@code MsgEvent} instance, or the static method {@code setMyAddress()}
+ * can be used to set the default address for all future instances generated. For example:
+ * <blockquote><pre>
+ *     MsgEvent.<a href="MsgEvent.html#setMyAddress-com.researchworx.cresco.library.messaging.CAddr-">setMyAddress</a>(new <a href="CAddr.html">CAddr</a>("region", "agent", "plugin"));   // or
+ *     MsgEvent.<a href="MsgEvent.html#setMyAddress-java.lang.String-">setMyAddress</a>("region");                                 // or
+ *     MsgEvent.<a href="MsgEvent.html#setMyAddress-java.lang.String-java.lang.String-">setMyAddress</a>("region", "agent");                        // or
+ *     MsgEvent.<a href="MsgEvent.html#setMyAddress-java.lang.String-java.lang.String-java.lang.String-">setMyAddress</a>("region", "agent", "plugin");
+ * </pre></blockquote>
+ * Like other messaging protocols, {@code MsgEvent} contains a message payload in the form of a
+ * Java Map. Payload access works as follows:
+ * <blockquote><pre>
+ *     msgEvent.<a href="MsgEvent.html#setParam-java.lang.String-java.lang.String-">setParam</a>("param_name", "param_value");  // sets a payload value
+ *     msgEvent.<a href="MsgEvent.html#setParams-java.util.Map-">setParams</a>(Map);                         // replaces all payload values with Map values
+ *     msgEvent.<a href="MsgEvent.html#addParams-java.util.Map-">addParams</a>(Map);                         // adds all Map values to existing payload values
+ *     msgEvent.<a href="MsgEvent.html#getParam-java.lang.String-">getParam</a>("param_name");                 // retrieves a payload value
+ *     msgEvent.<a href="MsgEvent.html#getParams--">getParams</a>();                            // returns a Map of all payload values
+ * </pre></blockquote>
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
+ * @see com.researchworx.cresco.library.messaging.CAddr
  * @since 0.1.0
  */
 @XmlRootElement
@@ -79,8 +119,17 @@ public class MsgEvent {
         CONFIG, DISCOVER, ERROR, EXEC, GC, INFO, KPI, LOG, WATCHDOG
     }
 
+    /**
+     * MsgEvent scopes enumeration
+     */
+    public enum Scope {
+        GLOBAL, REGIONAL, AGENT, PLUGIN
+    }
+
     /** Type of message */
-    private Type msgType = Type.INFO;
+    private Type type = Type.INFO;
+    /** Scope of message */
+    private Scope scope = Scope.GLOBAL;
     /** Source address of message */
     private CAddr source = null;
     /** Destination address of message */
@@ -120,7 +169,7 @@ public class MsgEvent {
      */
     public MsgEvent(Type msgType, CAddr destination) {
         this(destination);
-        setMsgType(msgType);
+        setType(msgType);
     }
 
     /**
@@ -132,6 +181,25 @@ public class MsgEvent {
     public MsgEvent(Type msgType, CAddr destination, Map<String, String> params) {
         this(msgType, destination);
         setParams(params);
+    }
+
+    /**
+     * Constructor
+     * @param dstRegion     Destination region name
+     */
+    public MsgEvent(String dstRegion) {
+        this();
+        setDestination(dstRegion);
+    }
+
+    /**
+     * Constructor
+     * @param dstRegion     Destination region name
+     * @param dstAgent      Destination agent name
+     */
+    public MsgEvent(String dstRegion, String dstAgent) {
+        this();
+        setDestination(dstRegion, dstAgent);
     }
 
     /**
@@ -149,12 +217,35 @@ public class MsgEvent {
      * Constructor
      * @param msgType       (MsgEvent.Type) Message type
      * @param dstRegion     Destination region name
+     */
+    public MsgEvent(Type msgType, String dstRegion) {
+        this();
+        setType(msgType);
+        setDestination(dstRegion);
+    }
+
+    /**
+     * Constructor
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Destination region name
+     * @param dstAgent      Destination agent name
+     */
+    public MsgEvent(Type msgType, String dstRegion, String dstAgent) {
+        this();
+        setType(msgType);
+        setDestination(dstRegion, dstAgent);
+    }
+
+    /**
+     * Constructor
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Destination region name
      * @param dstAgent      Destination agent name
      * @param dstPlugin     Destination plugin name
      */
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin) {
         this();
-        setMsgType(msgType);
+        setType(msgType);
         setDestination(dstRegion, dstAgent, dstPlugin);
     }
 
@@ -169,9 +260,36 @@ public class MsgEvent {
     @Deprecated
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin, String msgBody) {
         this();
-        setMsgType(msgType);
+        setType(msgType);
         setDestination(dstRegion, dstAgent, dstPlugin);
         setParam("msg", msgBody);
+    }
+
+    /**
+     * Constructor
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Unused region name
+     * @param params        Message custom parameters
+     */
+    public MsgEvent(Type msgType, String dstRegion, Map<String, String> params) {
+        this();
+        setType(msgType);
+        setDestination(dstRegion);
+        setParams(params);
+    }
+
+    /**
+     * Constructor
+     * @param msgType       (MsgEvent.Type) Message type
+     * @param dstRegion     Unused region name
+     * @param dstAgent      Unused agent name
+     * @param params        Message custom parameters
+     */
+    public MsgEvent(Type msgType, String dstRegion, String dstAgent, Map<String, String> params) {
+        this();
+        setType(msgType);
+        setDestination(dstRegion, dstAgent);
+        setParams(params);
     }
 
     /**
@@ -184,7 +302,7 @@ public class MsgEvent {
      */
     public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin, Map<String, String> params) {
         this();
-        setMsgType(msgType);
+        setType(msgType);
         setDestination(dstRegion, dstAgent, dstPlugin);
         setParams(params);
     }
@@ -321,14 +439,21 @@ public class MsgEvent {
      * @param address   (CAddr) Destination address
      */
     public void setDestination(CAddr address) {
+        setScope(Scope.GLOBAL);
         if (address == null)
             return;
-        if (address.getRegion() != null)
+        if (address.getRegion() != null) {
             setParam("dst_region", address.getRegion());
-        if (address.getAgent() != null)
-            setParam("dst_agent", address.getAgent());
-        if (address.getPlugin() != null)
-            setParam("dst_plugin", address.getPlugin());
+            setScope(Scope.REGIONAL);
+            if (address.getAgent() != null) {
+                setParam("dst_agent", address.getAgent());
+                setScope(Scope.AGENT);
+                if (address.getPlugin() != null) {
+                    setParam("dst_plugin", address.getPlugin());
+                    setScope(Scope.PLUGIN);
+                }
+            }
+        }
         this.destination = new CAddr(address);
     }
 
@@ -338,6 +463,7 @@ public class MsgEvent {
      */
     public void setDestination(String region) {
         setParam("dst_region", region);
+        setScope(Scope.REGIONAL);
         this.destination = new CAddr(region);
     }
 
@@ -349,6 +475,7 @@ public class MsgEvent {
     public void setDestination(String region, String agent) {
         setParam("dst_region", region);
         setParam("dst_agent", agent);
+        setScope(Scope.AGENT);
         this.destination = new CAddr(region, agent);
     }
 
@@ -362,6 +489,7 @@ public class MsgEvent {
         setParam("dst_region", region);
         setParam("dst_agent", agent);
         setParam("dst_plugin", plugin);
+        setScope(Scope.PLUGIN);
         this.destination = new CAddr(region, agent, plugin);
     }
 
@@ -434,16 +562,33 @@ public class MsgEvent {
      * @return      (MsgEvent.Type) Message type
      */
     @XmlJavaTypeAdapter(MsgEventTypesAdapter.class)
-    public Type getMsgType() {
-        return msgType;
+    public Type getType() {
+        return type;
     }
 
     /**
      * Message type setter
-     * @param msgType   (MsgEvent.Type) Message type
+     * @param type   (MsgEvent.Type) Message type
      */
-    public void setMsgType(Type msgType) {
-        this.msgType = msgType;
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    /**
+     * Message scope getter
+     * @return      (MsgEvent.Scope) Message scope
+     */
+    @XmlJavaTypeAdapter(MsgEventScopesAdapter.class)
+    public Scope getScope() {
+        return scope;
+    }
+
+    /**
+     * Message scope setter
+     * @param scope   (MsgEvent.Scope) Message scope
+     */
+    public void setScope(Scope scope) {
+        this.scope = scope;
     }
 
     /**
@@ -471,6 +616,16 @@ public class MsgEvent {
     }
 
     /**
+     * Adds new parameters to message payload
+     * @param params    (Map(String,String)) Message payload
+     */
+    public void addParams(Map<String, String> params) {
+        for (String key : params.keySet()) {
+            setParam(key, params.get(key));
+        }
+    }
+
+    /**
      * Message payload item getter
      * @param key   Key of payload item to get
      * @return      Payload value at key
@@ -480,8 +635,8 @@ public class MsgEvent {
     }
 
     /**
-     * Compressed message payload item getter
-     *    DEPRECATED: All payload items are compressed/uncompressed by default since 0.4.2
+     * Compressed message payload item getter<br><em>DEPRECATED: All payload items are
+     * compressed/uncompressed by default since 0.4.2</em>
      * @param key   Key of payload item to get
      * @return      Payload value at key
      */
@@ -500,8 +655,8 @@ public class MsgEvent {
     }
 
     /**
-     * Compressed message payload item setter
-     *    DEPRECATED: All payload items are compressed/uncompressed by default since 0.4.2
+     * Compressed message payload item setter<br><em>DEPRECATED: All payload items are
+     * compressed/uncompressed by default since 0.4.2</em>
      * @param key       Key of payload item to set
      * @param value     Payload value at key
      */
@@ -527,7 +682,8 @@ public class MsgEvent {
         if (o == this) return true;
         if (!(o instanceof MsgEvent)) return false;
         MsgEvent msgEvent = (MsgEvent)o;
-        return getMsgType().equals(msgEvent.getMsgType()) &&
+        return getType().equals(msgEvent.getType()) &&
+                getScope().equals(msgEvent.getScope()) &&
                 ((getSource() == null && msgEvent.getSource() == null) ||
                         getSource().equals(msgEvent.getSource())) &&
                 ((getDestination() == null && msgEvent.getDestination() == null) ||
@@ -542,7 +698,8 @@ public class MsgEvent {
     @Override
     public String toString() {
         return "{" +
-                "type=" + getMsgType() +
+                "type=" + getType() +
+                ", scope=" + getScope() +
                 ", source=" + getSource() +
                 ", destination=" + getDestination() +
                 ", params=" + getParams() +

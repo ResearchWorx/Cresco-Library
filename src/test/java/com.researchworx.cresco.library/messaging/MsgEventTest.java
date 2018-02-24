@@ -135,7 +135,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test2_Equality() {
+    public void Test3_Equality() {
         logger.info("Equality Test");
         MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, "tst_src_region",
                 "tst_src_agent", "tst_src_plugin");
@@ -163,7 +163,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test3_Marshalling() {
+    public void Test4_Marshalling() {
         logger.info("Marshalling Test");
         Gson gson = new Gson();
         Assert.assertNotNull(gson);
@@ -188,7 +188,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test4_MyAddress() {
+    public void Test5_MyAddress() {
         logger.info("MyAddress Test");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
@@ -242,7 +242,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test5_SetReturn() {
+    public void Test6_SetReturn() {
         logger.info("SetReturn() Test");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
@@ -258,7 +258,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test6_Upgrade() {
+    public void Test7_Upgrade() {
         logger.info("Upgrade() Test");
         logger.info("\tNo old-style parameters:");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
@@ -288,7 +288,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test7_TextMessage() throws Exception {
+    public void Test8_TextMessage() throws Exception {
         logger.info("TextMessage Test");
         final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
                 "vm://localhost?broker.persistent=false");
@@ -309,7 +309,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test8_ActiveMQTransportEquality() throws Exception {
+    public void Test9_ActiveMQTransportEquality() throws Exception {
         logger.info("ActiveMQ Queue Transport Test");
         Gson gson = new Gson();
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
