@@ -137,8 +137,7 @@ public class MsgEventTest {
     @Test
     public void Test3_Equality() {
         logger.info("Equality Test");
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, "tst_src_region",
-                "tst_src_agent", "tst_src_plugin");
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO);
         msgEventA.setParam("src_region", "test_src_region");
         msgEventA.setParam("src_agent", "test_src_agent");
         msgEventA.setParam("src_plugin", "test_src_plugin");
@@ -148,8 +147,7 @@ public class MsgEventTest {
         msgEventA.setParam("some_param", Integer.toString(3));
         Assert.assertNotNull(msgEventA);
         logger.info("\tmsgEventA:\t" + msgEventA.toString());
-        MsgEvent msgEventB = new MsgEvent(MsgEvent.Type.INFO, "tst_src_region",
-                "tst_src_agent", "tst_src_plugin");
+        MsgEvent msgEventB = new MsgEvent(MsgEvent.Type.INFO);
         msgEventB.setParam("src_region", "test_src_region");
         msgEventB.setParam("src_agent", "test_src_agent");
         msgEventB.setParam("src_plugin", "test_src_plugin");
@@ -167,8 +165,7 @@ public class MsgEventTest {
         logger.info("Marshalling Test");
         Gson gson = new Gson();
         Assert.assertNotNull(gson);
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, "tst_src_region",
-                "tst_src_agent", "tst_src_plugin");
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO);
         msgEventA.setParam("src_region", "test_src_region");
         msgEventA.setParam("src_agent", "test_src_agent");
         msgEventA.setParam("src_plugin", "test_src_plugin");
@@ -196,13 +193,13 @@ public class MsgEventTest {
 
         logger.info("\tMsgEvent.getMyAddress():\t" + MsgEvent.getMyAddress());
 
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, dst[0], dst[1], dst[2]);
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
         msgEventA.setParam("some_param", Integer.toString(3));
         Assert.assertNotNull(msgEventA);
         Assert.assertEquals(msgEventA.getSource(), MsgEvent.getMyAddress());
         logger.info("\tmsgEventA.getSource():\t\t" + msgEventA.getSource());
 
-        MsgEvent msgEventB = new MsgEvent(MsgEvent.Type.INFO, dst[0], dst[1], dst[2]);
+        MsgEvent msgEventB = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
         msgEventB.setParam("some_param", Integer.toString(3));
         Assert.assertNotNull(msgEventB);
         Assert.assertEquals(msgEventA, msgEventB);
@@ -247,7 +244,7 @@ public class MsgEventTest {
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
         MsgEvent.setMyAddress(src[0], src[1], src[2]);
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, dst[0], dst[1], dst[2]);
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
         msgEventA.setParam("some_param", Integer.toString(3));
         logger.info("\tOriginal Message:\t" + msgEventA.toString());
         msgEventA.setReturn();
@@ -299,7 +296,7 @@ public class MsgEventTest {
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
         MsgEvent.setMyAddress(src[0], src[1], src[2]);
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, dst[0], dst[1], dst[2]);
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
         msgEventA.setParam("some_param", Integer.toString(3));
         String msgEventAString = gson.toJson(msgEventA);
         TextMessage message = session.createTextMessage(msgEventAString);
@@ -315,7 +312,7 @@ public class MsgEventTest {
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
         MsgEvent.setMyAddress(src[0], src[1], src[2]);
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, dst[0], dst[1], dst[2]);
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
         msgEventA.setParam("some_param", Integer.toString(3));
         logger.info("\tOriginal Message:\t" + msgEventA.toString());
         String msgEventAString = gson.toJson(msgEventA);
