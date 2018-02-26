@@ -504,7 +504,8 @@ public class MsgEvent {
 
     /**
      * Set Remote Procedure Call parameters
-     * @param callID    RPC identifier
+     * @param callID        RPC identifier
+     * @throws Exception    Thrown when MyAddress is not set
      */
     public void setRPC(String callID) throws Exception {
         if (myAddress == null)
