@@ -21,19 +21,16 @@ import java.util.zip.GZIPOutputStream;
  * and in the case of Remote Procedure Call (RPC) messages, the message originator. Other constructors
  * define the message type, destination, and initial parameters if known:
  * <blockquote><pre>
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(new <a href="CAddr.html">CAddr</a>());
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(new <a href="CAddr.html">CAddr</a>(...));
  *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>);
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>());
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-java.util.Map-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>(), Map);
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>(...));
+ *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-java.util.Map-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>(...), Map&lt;String, String&gt;);
  * </pre></blockquote>
  * The source can
  * be set manually for each new {@code MsgEvent} instance, or the static method {@code setMyAddress()}
  * can be used to set the default address for all future instances generated. For example:
  * <blockquote><pre>
- *     MsgEvent.<a href="MsgEvent.html#setMyAddress-com.researchworx.cresco.library.messaging.CAddr-">setMyAddress</a>(new <a href="CAddr.html">CAddr</a>("region", "agent", "plugin"));   // or
- *     MsgEvent.<a href="MsgEvent.html#setMyAddress-java.lang.String-">setMyAddress</a>("region");                                 // or
- *     MsgEvent.<a href="MsgEvent.html#setMyAddress-java.lang.String-java.lang.String-">setMyAddress</a>("region", "agent");                        // or
- *     MsgEvent.<a href="MsgEvent.html#setMyAddress-java.lang.String-java.lang.String-java.lang.String-">setMyAddress</a>("region", "agent", "plugin");
+ *     MsgEvent.<a href="MsgEvent.html#setMyAddress-com.researchworx.cresco.library.messaging.CAddr-">setMyAddress</a>(new <a href="CAddr.html">CAddr</a>(...));
  * </pre></blockquote>
  * Like other messaging protocols, {@code MsgEvent} contains a message payload in the form of a
  * Java Map. Payload access works as follows:
@@ -56,7 +53,7 @@ public class MsgEvent {
 
     /**
      * myAddress getter
-     * @return CAddr    Static address of this instance for MsgEvent
+     * @return      Static address of this instance for MsgEvent
      */
     public static CAddr getMyAddress() {
         return MsgEvent.myAddress;
@@ -147,7 +144,7 @@ public class MsgEvent {
 
     /**
      * Constructor
-     * @param destination   (CAddr) Destination address
+     * @param destination   Message destination address
      */
     public MsgEvent(CAddr destination) {
         this();
@@ -156,8 +153,8 @@ public class MsgEvent {
 
     /**
      * Constructor
-     * @param destination   (CAddr) Destination address
-     * @param params        (Map(String,String)) Map of custom message parameters
+     * @param destination   Message destination address
+     * @param params        Map of custom message parameters
      */
     public MsgEvent(CAddr destination, Map<String, String> params) {
         this(destination);
@@ -166,7 +163,7 @@ public class MsgEvent {
 
     /**
      * Constructor
-     * @param type          (MsgEvent.Type) Message type
+     * @param type          Message type
      */
     public MsgEvent(Type type) {
         this();
@@ -175,8 +172,8 @@ public class MsgEvent {
 
     /**
      * Constructor
-     * @param type          (MsgEvent.Type) Message type
-     * @param destination   (CAddr) Destination address
+     * @param type          Message type
+     * @param destination   Message destination address
      */
     public MsgEvent(Type type, CAddr destination) {
         this(destination);
@@ -185,16 +182,16 @@ public class MsgEvent {
 
     /**
      * Constructor
-     * @param type          (MsgEvent.Type) Message type
-     * @param destination   (CAddr) Destination address
-     * @param params        (Map(String,String)) Map of custom message parameters
+     * @param type          Message type
+     * @param destination   Message destination address
+     * @param params        Map of custom message parameters
      */
     public MsgEvent(Type type, CAddr destination, Map<String, String> params) {
         this(type, destination);
         setParams(params);
     }
 
-    /**
+    /*/**
      * Constructor
      * @param dstRegion     Destination region name
      */
@@ -203,7 +200,7 @@ public class MsgEvent {
         setDestination(dstRegion);
     }*/
 
-    /**
+    /*/**
      * Constructor
      * @param dstRegion     Destination region name
      * @param dstAgent      Destination agent name
@@ -213,7 +210,7 @@ public class MsgEvent {
         setDestination(dstRegion, dstAgent);
     }*/
 
-    /**
+    /*/**
      * Constructor
      * @param dstRegion     Destination region name
      * @param dstAgent      Destination agent name
@@ -224,7 +221,7 @@ public class MsgEvent {
         setDestination(dstRegion, dstAgent, dstPlugin);
     }*/
 
-    /**
+    /*/**
      * Constructor
      * @param type          (MsgEvent.Type) Message type
      * @param dstRegion     Destination region name
@@ -235,7 +232,7 @@ public class MsgEvent {
         setDestination(dstRegion);
     }*/
 
-    /**
+    /*/**
      * Constructor
      * @param type          (MsgEvent.Type) Message type
      * @param dstRegion     Destination region name
@@ -247,7 +244,7 @@ public class MsgEvent {
         setDestination(dstRegion, dstAgent);
     }*/
 
-    /**
+    /*/**
      * Constructor
      * @param type          (MsgEvent.Type) Message type
      * @param dstRegion     Destination region name
@@ -262,7 +259,7 @@ public class MsgEvent {
 
     /**
      * Constructor (Deprecated)
-     * @param type          (MsgEvent.Type) Message type
+     * @param type          Message type
      * @param dstRegion     Unused region name
      * @param dstAgent      Unused agent name
      * @param dstPlugin     Unused plugin name
@@ -276,7 +273,7 @@ public class MsgEvent {
         setParam("msg", msgBody);
     }
 
-    /**
+    /*/**
      * Constructor
      * @param type          (MsgEvent.Type) Message type
      * @param dstRegion     Unused region name
@@ -289,7 +286,7 @@ public class MsgEvent {
         setParams(params);
     }*/
 
-    /**
+    /*/**
      * Constructor
      * @param msgType       (MsgEvent.Type) Message type
      * @param dstRegion     Unused region name
@@ -303,7 +300,7 @@ public class MsgEvent {
         setParams(params);
     }*/
 
-    /**
+    /*/**
      * Constructor
      * @param msgType       (MsgEvent.Type) Message type
      * @param dstRegion     Unused region name
@@ -320,7 +317,7 @@ public class MsgEvent {
 
     /**
      * Message source getter
-     * @return      (CAddr) Message source address
+     * @return      Message source address
      */
     @XmlJavaTypeAdapter(CAddrAdapter.class)
     public CAddr getSource() {
@@ -359,7 +356,7 @@ public class MsgEvent {
 
     /**
      * Message source setter
-     * @param address   (CAddr) Source address
+     * @param address   Message source address
      */
     public void setSource(CAddr address) {
         if (address == null)
@@ -408,7 +405,7 @@ public class MsgEvent {
 
     /**
      * Message destination getter
-     * @return     (CAddr) Message destination address
+     * @return     Message destination address
      */
     @XmlJavaTypeAdapter(CAddrAdapter.class)
     public CAddr getDestination() {
@@ -447,7 +444,7 @@ public class MsgEvent {
 
     /**
      * Message destination setter
-     * @param address   (CAddr) Destination address
+     * @param address   Message destination address
      */
     public void setDestination(CAddr address) {
         setScope(Scope.GLOBAL);
@@ -570,7 +567,7 @@ public class MsgEvent {
 
     /**
      * Message type getter
-     * @return      (MsgEvent.Type) Message type
+     * @return      Message type
      */
     @XmlJavaTypeAdapter(MsgEventTypesAdapter.class)
     public Type getType() {
@@ -579,7 +576,7 @@ public class MsgEvent {
 
     /**
      * Message type setter
-     * @param type   (MsgEvent.Type) Message type
+     * @param type   Message type
      */
     public void setType(Type type) {
         this.type = type;
@@ -587,7 +584,7 @@ public class MsgEvent {
 
     /**
      * Message scope getter
-     * @return      (MsgEvent.Scope) Message scope
+     * @return      Message scope
      */
     @XmlJavaTypeAdapter(MsgEventScopesAdapter.class)
     public Scope getScope() {
@@ -596,7 +593,7 @@ public class MsgEvent {
 
     /**
      * Message scope setter
-     * @param scope   (MsgEvent.Scope) Message scope
+     * @param scope   Message scope
      */
     public void setScope(Scope scope) {
         this.scope = scope;
@@ -604,7 +601,7 @@ public class MsgEvent {
 
     /**
      * Message payload getter
-     * @return      (Map(String,String)) Message payload
+     * @return      Message payload
      */
     @XmlJavaTypeAdapter(MsgEventParamsAdapter.class)
     public Map<String, String> getParams() {
@@ -617,7 +614,7 @@ public class MsgEvent {
 
     /**
      * Message payload setter
-     * @param params    (Map(String,String)) Message payload
+     * @param params    Message payload
      */
     public void setParams(Map<String, String> params) {
         this.params = new HashMap<>();
@@ -628,7 +625,7 @@ public class MsgEvent {
 
     /**
      * Adds new parameters to message payload
-     * @param params    (Map(String,String)) Message payload
+     * @param params    Message payload
      */
     public void addParams(Map<String, String> params) {
         for (String key : params.keySet()) {
