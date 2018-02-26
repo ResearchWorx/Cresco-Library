@@ -23,7 +23,7 @@ public class MsgEventTest {
     public EmbeddedActiveMQBroker broker = new EmbeddedActiveMQBroker();
 
     @Test
-    public void Test1_CompressedParams() {
+    public void Test01_CompressedParams() {
         logger.info("Compressed Parameters Test");
         Map<String, String> params = new HashMap<>();
         params.put("paramA", "paramAvalue");
@@ -53,7 +53,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test2_Addresses() {
+    public void Test02_Addresses() {
         logger.info("Address Accessor Test");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
@@ -135,7 +135,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test3_Equality() {
+    public void Test03_Equality() {
         logger.info("Equality Test");
         MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO);
         msgEventA.setParam("src_region", "test_src_region");
@@ -161,7 +161,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test4_Marshalling() {
+    public void Test04_Marshalling() {
         logger.info("Marshalling Test");
         Gson gson = new Gson();
         Assert.assertNotNull(gson);
@@ -185,7 +185,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test5_MyAddress() {
+    public void Test05_MyAddress() {
         logger.info("MyAddress Test");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
@@ -239,7 +239,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test6_SetReturn() {
+    public void Test06_SetReturn() {
         logger.info("SetReturn() Test");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
@@ -255,7 +255,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test7_Upgrade() {
+    public void Test07_Upgrade() {
         logger.info("Upgrade() Test");
         logger.info("\tNo old-style parameters:");
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
@@ -285,7 +285,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test8_TextMessage() throws Exception {
+    public void Test08_TextMessage() throws Exception {
         logger.info("TextMessage Test");
         final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
                 "vm://localhost?broker.persistent=false");
@@ -306,7 +306,7 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test9_ActiveMQTransportEquality() throws Exception {
+    public void Test09_ActiveMQTransportEquality() throws Exception {
         logger.info("ActiveMQ Queue Transport Test");
         Gson gson = new Gson();
         String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
@@ -335,6 +335,64 @@ public class MsgEventTest {
             logger.info("\tDequeued Message:\t" + msgEventB.toString());
             Assert.assertEquals(msgEventA, msgEventB);
         }
+        MsgEvent.removeMyAddress();
+    }
+
+    @Test
+    public void Test10_RPC() throws Exception {
+        logger.info("RPC Test");
+        String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
+        MsgEvent.setMyAddress(new CAddr(src[0], src[1], src[2]));
+        String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
+        Gson gson = new Gson();
+        Map<String, MsgEvent> rpcMap = new HashMap<>();
+        // Generate Message
+        MsgEvent msgEventA = new MsgEvent(new CAddr(dst[0], dst[1], dst[2]));
+        logger.info("\tInitial message:\t\t{}", msgEventA);
+        // "Send" message as RPC (set RPC flags)
+        String callId = java.util.UUID.randomUUID().toString();
+        msgEventA.setRPC(callId);
+        logger.info("\tMessage w/ RPC:\t\t\t{}", msgEventA);
+        // Put message on a queue
+        final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+                "vm://localhost?broker.persistent=false");
+        final Connection connection = connectionFactory.createConnection();
+        connection.start();
+        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        final Queue queue = session.createTemporaryQueue();
+        final MessageProducer producer = session.createProducer(queue);
+        final TextMessage messageA = session.createTextMessage(gson.toJson(msgEventA));
+        producer.send(messageA);
+        // Collect message from queue
+        final MessageConsumer consumer = session.createConsumer(queue);
+        final TextMessage messageB = (TextMessage) consumer.receive();
+        Assert.assertNotNull(messageB);
+        MsgEvent msgEventB = gson.fromJson(messageB.getText(), MsgEvent.class);
+        Assert.assertEquals(msgEventA, msgEventB);
+        // Set Return
+        msgEventB.setReturn();
+        logger.info("\tMessage w/ SetReturn():\t{}", msgEventB);
+        // Put message back on queue
+        final TextMessage messageC = session.createTextMessage(gson.toJson(msgEventB));
+        producer.send(messageC);
+        // Collect message from queue
+        final TextMessage messageD = (TextMessage) consumer.receive();
+        Assert.assertNotNull(messageD);
+        MsgEvent msgEventD = gson.fromJson(messageD.getText(), MsgEvent.class);
+        logger.info("\tReturned Message:\t\t{}", msgEventD);
+        //msg.setParam("callId-" + region + "-" + agent + "-" + pluginID, callId);
+        String oldCallId = msgEventD.getParam("callId-" + src[0] + "-" + src[1] + "-" + src[2]);
+        Assert.assertNotNull(oldCallId);
+        Assert.assertEquals(callId, oldCallId);
+        // Put in "RPC Map"
+        rpcMap.put(msgEventD.getRpcCallID(), msgEventD);
+        // Check for RPC to match expected values
+        MsgEvent msgEventE = rpcMap.get(callId);
+        Assert.assertNotNull(msgEventE);
+        logger.info("\tRPC Result:\t\t\t\t{}", msgEventE);
+        Assert.assertEquals(msgEventD, msgEventE);
+        Assert.assertEquals(new CAddr(src[0], src[1], src[2]), msgEventE.getDestination());
+        Assert.assertEquals(new CAddr(src[0], src[1], src[2]), msgEventE.getRPCCaller());
         MsgEvent.removeMyAddress();
     }
 }

@@ -1,6 +1,7 @@
 package com.researchworx.cresco.library.messaging;
 
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.*;
@@ -124,9 +125,9 @@ public class MsgEvent {
     /** Destination address of message */
     private CAddr destination = null;
     /** RPC origination address of message (if RPC) */
-    private CAddr rpc = null;
+    private CAddr rpcCaller = null;
     /** RPC call ID for message identification */
-    private String callId = null;
+    private String rpcCallID = null;
     /** Custom message parameters */
     private Map<String, String> params = new HashMap<>();
 
@@ -501,7 +502,62 @@ public class MsgEvent {
         this.destination = new CAddr(region, agent, plugin);
     }
 
-    // ToDo: Add methods for working with RPC
+    /**
+     * Set Remote Procedure Call parameters
+     * @param callID    RPC identifier
+     */
+    public void setRPC(String callID) throws Exception {
+        if (myAddress == null)
+            throw new Exception("MyAddress cannot be NULL to use this method");
+        setRPCCaller(myAddress);
+        setRPCCallID(callID);
+        setParam("callId-" + myAddress.getRegion() + "-" + myAddress.getAgent() + "-" + myAddress.getPlugin(), callID);
+    }
+
+    /**
+     * Set Remote Procedure Call parameters
+     * @param caller    RPC initiator address
+     * @param callID    RPC identifier
+     */
+    public void setRPC(CAddr caller, String callID) {
+        setRPCCaller(caller);
+        setRPCCallID(callID);
+        setParam("callId-" + caller.getRegion() + "-" + caller.getAgent() + "-" + caller.getPlugin(), callID);
+    }
+
+    /**
+     * RPC initiator getter
+     * @return  Address of RPC initiator
+     */
+    @XmlJavaTypeAdapter(CAddrAdapter.class)
+    public CAddr getRPCCaller() {
+        return rpcCaller;
+    }
+
+    /**
+     * RPC initiator setter
+     * @param rpcCaller    Address of RPC initiator
+     */
+    public void setRPCCaller(CAddr rpcCaller) {
+        this.rpcCaller = rpcCaller;
+    }
+
+    /**
+     * RPC identifier getter
+     * @return  RPC identifier
+     */
+    @XmlElement
+    public String getRpcCallID() {
+        return rpcCallID;
+    }
+
+    /**
+     * RPC identifier setter
+     * @param rpcCallID  RPC identifier
+     */
+    public void setRPCCallID(String rpcCallID) {
+        this.rpcCallID = rpcCallID;
+    }
 
     /**
      * Upgrade an old-style addressed message to the new CAddr style
@@ -692,6 +748,10 @@ public class MsgEvent {
         MsgEvent msgEvent = (MsgEvent)o;
         return getType().equals(msgEvent.getType()) &&
                 getScope().equals(msgEvent.getScope()) &&
+                ((getRPCCaller() == null && msgEvent.getRPCCaller() == null) ||
+                        getRPCCaller().equals(msgEvent.getRPCCaller())) &&
+                ((getRpcCallID() == null && msgEvent.getRpcCallID() == null) ||
+                        getRpcCallID().equals(msgEvent.getRpcCallID())) &&
                 ((getSource() == null && msgEvent.getSource() == null) ||
                         getSource().equals(msgEvent.getSource())) &&
                 ((getDestination() == null && msgEvent.getDestination() == null) ||
@@ -709,6 +769,7 @@ public class MsgEvent {
                 "type=" + getType() +
                 ", scope=" + getScope() +
                 ", source=" + getSource() +
+                ", rpc_caller=" + getRPCCaller() + ", rpc_callid=" + getRpcCallID() +
                 ", destination=" + getDestination() +
                 ", params=" + getParams() +
                 "}";
