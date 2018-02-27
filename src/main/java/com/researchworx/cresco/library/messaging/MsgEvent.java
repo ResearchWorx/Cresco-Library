@@ -194,7 +194,7 @@ public class MsgEvent {
         setDestination(dstRegion, dstAgent, dstPlugin);
     }*/
 
-    /**
+    /*/**
      * Constructor (Deprecated)
      * @param type          Message type
      * @param dstRegion     Unused region name
@@ -202,13 +202,13 @@ public class MsgEvent {
      * @param dstPlugin     Unused plugin name
      * @param msgBody       Message body parameter
      */
-    @Deprecated
+    /*@Deprecated
     public MsgEvent(Type type, String dstRegion, String dstAgent, String dstPlugin, String msgBody) {
         this();
         setType(type);
         setDestination(dstRegion, dstAgent, dstPlugin);
         setParam("msg", msgBody);
-    }
+    }*/
 
     /*/**
      * Constructor
