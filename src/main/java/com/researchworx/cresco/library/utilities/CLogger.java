@@ -1,5 +1,6 @@
 package com.researchworx.cresco.library.utilities;
 
+import com.researchworx.cresco.library.messaging.CAddr;
 import com.researchworx.cresco.library.messaging.MsgEvent;
 
 import java.util.Date;
@@ -21,33 +22,27 @@ public class CLogger {
             return check.getValue() <= this.getValue();
         }
     }
-    private String region;
-    private String agent;
-    private String plugin;
     private Level level;
     private BlockingQueue<MsgEvent> msgOutQueue;
     private Class issuingClass;
 
-    public CLogger(BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
-        this(msgOutQueue, region, agent, plugin, Level.Info);
+    public CLogger(BlockingQueue<MsgEvent> msgOutQueue) {
+        this(msgOutQueue, Level.Info);
     }
 
-    public CLogger(BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
-        this.region = region;
-        this.agent = agent;
-        this.plugin = plugin;
+    public CLogger(BlockingQueue<MsgEvent> msgOutQueue, Level level) {
         this.level = level;
         this.msgOutQueue = msgOutQueue;
     }
 
-    public CLogger(Class issuingClass, BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin) {
-        this(msgOutQueue, region, agent, plugin);
-        this.issuingClass = issuingClass;
+    public CLogger(Class issuingClass, BlockingQueue<MsgEvent> msgOutQueue) {
+        this(issuingClass, msgOutQueue, Level.Info);
     }
 
-    public CLogger(Class issuingClass, BlockingQueue<MsgEvent> msgOutQueue, String region, String agent, String plugin, Level level) {
-        this(msgOutQueue, region, agent, plugin, level);
+    public CLogger(Class issuingClass, BlockingQueue<MsgEvent> msgOutQueue, Level level) {
+        this.level = level;
         this.issuingClass = issuingClass;
+        this.msgOutQueue = msgOutQueue;
     }
 
     public void error(String logMessage) {
@@ -101,19 +96,14 @@ public class CLogger {
     }
 
     public void log(String logMessage, Level level) {
-        MsgEvent toSend = new MsgEvent(MsgEvent.Type.LOG, region, null, null, logMessage);
-        toSend.setParam("src_region", region);
-        if (agent != null) {
-            toSend.setParam("src_agent", agent);
-            if (plugin != null)
-                toSend.setParam("src_plugin", plugin);
-        }
+        MsgEvent toSend = new MsgEvent(MsgEvent.Type.LOG);
+        toSend.setDestination(new CAddr(MsgEvent.getMyAddress().getRegion()));
+        toSend.setParam("log_message", logMessage);
         if (issuingClass != null) {
-            toSend.setParam("class", issuingClass.getSimpleName());
-            toSend.setParam("full_class", issuingClass.getCanonicalName());
+            toSend.setParam("log_class", issuingClass.getSimpleName());
+            toSend.setParam("log_full_class", issuingClass.getCanonicalName());
         }
-        toSend.setParam("ts", String.valueOf(new Date().getTime()));
-        toSend.setParam("dst_region", region);
+        toSend.setParam("log_ts", String.valueOf(new Date().getTime()));
         toSend.setParam("log_level", level.name());
         log(toSend);
     }
