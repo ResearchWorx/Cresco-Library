@@ -27,12 +27,6 @@ import java.util.zip.GZIPOutputStream;
  *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>(...));
  *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-java.util.Map-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>(...), Map&lt;String, String&gt;);
  * </pre></blockquote>
- * The source can
- * be set manually for each new {@code MsgEvent} instance, or the static method {@code setMyAddress()}
- * can be used to set the default address for all future instances generated. For example:
- * <blockquote><pre>
- *     MsgEvent.<a href="MsgEvent.html#setMyAddress-com.researchworx.cresco.library.messaging.CAddr-">setMyAddress</a>(new <a href="CAddr.html">CAddr</a>(...));
- * </pre></blockquote>
  * Like other messaging protocols, {@code MsgEvent} contains a message payload in the form of a
  * Java Map. Payload access works as follows:
  * <blockquote><pre>
@@ -49,58 +43,6 @@ import java.util.zip.GZIPOutputStream;
  */
 @XmlRootElement
 public class MsgEvent {
-    /** Static address for setting source for all MsgEvents generated */
-    private static CAddr myAddress = null;
-
-    /**
-     * myAddress getter
-     * @return      Static address of this instance for MsgEvent
-     */
-    public static CAddr getMyAddress() {
-        return MsgEvent.myAddress;
-    }
-
-    /**
-     * myAddress setter
-     * @param address   Static address of MsgEvent
-     */
-    public static void setMyAddress(CAddr address) {
-        MsgEvent.myAddress = new CAddr(address);
-    }
-
-    /**
-     * myAddress setter
-     * @param region    Region of static address for MsgEvent
-     */
-    public static void setMyAddress(String region) {
-        MsgEvent.myAddress = new CAddr(region);
-    }
-
-    /**
-     * myAddress setter
-     * @param region    Region of static address for MsgEvent
-     * @param agent     Agent of static address for MsgEvent
-     */
-    public static void setMyAddress(String region, String agent) {
-        MsgEvent.myAddress = new CAddr(region, agent);
-    }
-
-    /**
-     * myAddress setter
-     * @param region    Region of static address for MsgEvent
-     * @param agent     Agent of static address for MsgEvent
-     * @param plugin    Plugin of static address for MsgEvent
-     */
-    public static void setMyAddress(String region, String agent, String plugin) {
-        MsgEvent.myAddress = new CAddr(region, agent, plugin);
-    }
-
-    /**
-     * Clears/removes static address for MsgEvent
-     */
-    public static void removeMyAddress() {
-        MsgEvent.myAddress = null;
-    }
 
     /**
      * MsgEvent types enumeration
@@ -113,13 +55,13 @@ public class MsgEvent {
      * MsgEvent scopes enumeration
      */
     public enum Scope {
-        GLOBAL, REGIONAL, AGENT, PLUGIN
+        GLOBAL, REGIONAL, AGENT, CONTROLLER, PLUGIN, SELF
     }
 
     /** Type of message */
     private Type type = Type.INFO;
     /** Scope of message */
-    private Scope scope = Scope.GLOBAL;
+    private Scope scope = Scope.PLUGIN;
     /** Source address of message */
     private CAddr source = null;
     /** Destination address of message */
@@ -134,21 +76,15 @@ public class MsgEvent {
     /**
      * Default constructor
      */
-    public MsgEvent() {
-        if (myAddress != null) {
-            this.source = new CAddr(myAddress);
-            setParam("src_region", myAddress.getRegion());
-            setParam("src_agent", myAddress.getAgent());
-            setParam("src_plugin", myAddress.getPlugin());
-        }
-    }
+    public MsgEvent() { }
 
     /**
      * Constructor
      * @param destination   Message destination address
      */
-    public MsgEvent(CAddr destination) {
+    public MsgEvent(CAddr source, CAddr destination) {
         this();
+        setSource(source);
         setDestination(destination);
     }
 
@@ -157,8 +93,8 @@ public class MsgEvent {
      * @param destination   Message destination address
      * @param params        Map of custom message parameters
      */
-    public MsgEvent(CAddr destination, Map<String, String> params) {
-        this(destination);
+    public MsgEvent(CAddr source, CAddr destination, Map<String, String> params) {
+        this(source, destination);
         setParams(params);
     }
 
@@ -176,8 +112,8 @@ public class MsgEvent {
      * @param type          Message type
      * @param destination   Message destination address
      */
-    public MsgEvent(Type type, CAddr destination) {
-        this(destination);
+    public MsgEvent(Type type, CAddr source, CAddr destination) {
+        this(source, destination);
         setType(type);
     }
 
@@ -187,8 +123,8 @@ public class MsgEvent {
      * @param destination   Message destination address
      * @param params        Map of custom message parameters
      */
-    public MsgEvent(Type type, CAddr destination, Map<String, String> params) {
-        this(type, destination);
+    public MsgEvent(Type type, CAddr source, CAddr destination, Map<String, String> params) {
+        this(type, source, destination);
         setParams(params);
     }
 
@@ -500,19 +436,6 @@ public class MsgEvent {
         setParam("dst_plugin", plugin);
         setScope(Scope.PLUGIN);
         this.destination = new CAddr(region, agent, plugin);
-    }
-
-    /**
-     * Set Remote Procedure Call parameters
-     * @param callID        RPC identifier
-     * @throws Exception    Thrown when MyAddress is not set
-     */
-    public void setRPC(String callID) throws Exception {
-        if (myAddress == null)
-            throw new Exception("MyAddress cannot be NULL to use this method");
-        setRPCCaller(myAddress);
-        setRPCCallID(callID);
-        setParam("callId-" + myAddress.getRegion() + "-" + myAddress.getAgent() + "-" + myAddress.getPlugin(), callID);
     }
 
     /**
