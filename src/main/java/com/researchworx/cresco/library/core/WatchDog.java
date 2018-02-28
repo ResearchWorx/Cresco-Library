@@ -12,6 +12,7 @@ import java.util.TimerTask;
  * @author Caylin Hickey
  * @since 0.1.0
  */
+@Deprecated
 public class WatchDog {
     /** Timer control object */
     private Timer timer;

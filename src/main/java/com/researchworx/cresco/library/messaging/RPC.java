@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Caylin Hickey
  * @since 0.1.0
  */
+@Deprecated
 public class RPC {
     /** Time between checks for RPC return message (in milliseconds) */
     private static final int CHECK_INTERVAL = 100;

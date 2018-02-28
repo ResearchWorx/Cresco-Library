@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -137,26 +139,28 @@ public class MsgEventTest {
     @Test
     public void Test03_Equality() {
         logger.info("Equality Test");
+        CAddr source = new CAddr("test_src_region", "test_src_agent", "test_src_plugin");
+        CAddr destination = new CAddr("test_dst_region", "test_dst_agent", "test_dst_plugin");
         MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO);
-        msgEventA.setParam("src_region", "test_src_region");
-        msgEventA.setParam("src_agent", "test_src_agent");
-        msgEventA.setParam("src_plugin", "test_src_plugin");
-        msgEventA.setParam("dst_region", "test_dst_region");
-        msgEventA.setParam("dst_agent", "test_dst_agent");
-        msgEventA.setParam("dst_plugin", "test_dst_plugin");
+        msgEventA.setParam("src_region", source.getRegion());
+        msgEventA.setParam("src_agent", source.getAgent());
+        msgEventA.setParam("src_plugin", source.getPlugin());
+        msgEventA.setParam("dst_region", destination.getRegion());
+        msgEventA.setParam("dst_agent", destination.getAgent());
+        msgEventA.setParam("dst_plugin", destination.getPlugin());
         msgEventA.setParam("some_param", Integer.toString(3));
         Assert.assertNotNull(msgEventA);
-        logger.info("\tmsgEventA:\t" + msgEventA.toString());
+        logger.info("\tmsgEventA:\t{}", msgEventA);
         MsgEvent msgEventB = new MsgEvent(MsgEvent.Type.INFO);
-        msgEventB.setParam("src_region", "test_src_region");
-        msgEventB.setParam("src_agent", "test_src_agent");
-        msgEventB.setParam("src_plugin", "test_src_plugin");
-        msgEventB.setParam("dst_region", "test_dst_region");
-        msgEventB.setParam("dst_agent", "test_dst_agent");
-        msgEventB.setParam("dst_plugin", "test_dst_plugin");
+        msgEventB.setParam("src_region", source.getRegion());
+        msgEventB.setParam("src_agent", source.getAgent());
+        msgEventB.setParam("src_plugin", source.getPlugin());
+        msgEventB.setParam("dst_region", destination.getRegion());
+        msgEventB.setParam("dst_agent", destination.getAgent());
+        msgEventB.setParam("dst_plugin", destination.getPlugin());
         msgEventB.setParam("some_param", Integer.toString(3));
         Assert.assertNotNull(msgEventB);
-        logger.info("\tmsgEventB:\t" + msgEventB.toString());
+        logger.info("\tmsgEventB:\t{}", msgEventB);
         Assert.assertEquals(msgEventA, msgEventB);
     }
 
@@ -187,23 +191,23 @@ public class MsgEventTest {
     @Test
     public void Test05_SetReturn() {
         logger.info("SetReturn() Test");
-        String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
-        String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
+        CAddr source = new CAddr("test_src_region", "test_src_agent", "test_src_plugin");
+        CAddr destination = new CAddr("test_dst_region", "test_dst_agent", "test_dst_plugin");
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, source, destination);
         msgEventA.setParam("some_param", Integer.toString(3));
         logger.info("\tOriginal Message:\t" + msgEventA.toString());
         msgEventA.setReturn();
         logger.info("\tAfter setReturn():\t" + msgEventA.toString());
-        Assert.assertEquals(msgEventA.getSource(), new CAddr(dst[0], dst[1], dst[2]));
-        Assert.assertEquals(msgEventA.getDestination(), new CAddr(src[0], src[1], src[2]));
+        Assert.assertEquals(msgEventA.getSource(), destination);
+        Assert.assertEquals(msgEventA.getDestination(), source);
     }
 
     @Test
     public void Test06_Upgrade() {
         logger.info("Upgrade() Test");
         logger.info("\tNo old-style parameters:");
-        String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
-        String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
+        CAddr source = new CAddr("test_src_region", "test_src_agent", "test_src_plugin");
+        CAddr destination = new CAddr("test_dst_region", "test_dst_agent", "test_dst_plugin");
         MsgEvent msgEventA = new MsgEvent();
         logger.info("\t\tBefore upgrade():\t" + msgEventA.toString());
         Assert.assertNull(msgEventA.getSource());
@@ -213,19 +217,21 @@ public class MsgEventTest {
         Assert.assertNull(msgEventA.getSource());
         Assert.assertNull(msgEventA.getDestination());
         logger.info("\tExisting old-style parameters:");
-        msgEventA.setParam("src_region", src[0]);
-        msgEventA.setParam("src_agent", src[1]);
-        msgEventA.setParam("src_plugin", src[2]);
-        msgEventA.setParam("dst_region", dst[0]);
-        msgEventA.setParam("dst_agent", dst[1]);
-        msgEventA.setParam("dst_plugin", dst[2]);
+        msgEventA.setParam("src_region", source.getRegion());
+        msgEventA.setParam("src_agent", source.getAgent());
+        msgEventA.setParam("src_plugin", source.getPlugin());
+        msgEventA.setParam("dst_region", destination.getRegion());
+        msgEventA.setParam("dst_agent", destination.getAgent());
+        msgEventA.setParam("dst_plugin", destination.getPlugin());
         logger.info("\t\tBefore upgrade():\t" + msgEventA.toString());
         Assert.assertNull(msgEventA.getSource());
         Assert.assertNull(msgEventA.getDestination());
         msgEventA.upgrade();
         logger.info("\t\tAfter upgrade():\t" + msgEventA.toString());
         Assert.assertNotNull(msgEventA.getSource());
+        Assert.assertEquals(msgEventA.getSource(), source);
         Assert.assertNotNull(msgEventA.getDestination());
+        Assert.assertEquals(msgEventA.getDestination(), destination);
     }
 
     @Test
@@ -237,9 +243,9 @@ public class MsgEventTest {
         connection.start();
         final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Gson gson = new Gson();
-        String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
-        String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
+        CAddr source = new CAddr("test_src_region", "test_src_agent", "test_src_plugin");
+        CAddr destination = new CAddr("test_dst_region", "test_dst_agent", "test_dst_plugin");
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, source, destination);
         msgEventA.setParam("some_param", Integer.toString(3));
         String msgEventAString = gson.toJson(msgEventA);
         TextMessage message = session.createTextMessage(msgEventAString);
@@ -251,9 +257,9 @@ public class MsgEventTest {
     public void Test08_ActiveMQTransportEquality() throws Exception {
         logger.info("ActiveMQ Queue Transport Test");
         Gson gson = new Gson();
-        String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
-        String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
-        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, new CAddr(dst[0], dst[1], dst[2]));
+        CAddr source = new CAddr("test_src_region", "test_src_agent", "test_src_plugin");
+        CAddr destination = new CAddr("test_dst_region", "test_dst_agent", "test_dst_plugin");
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, source, destination);
         msgEventA.setParam("some_param", Integer.toString(3));
         logger.info("\tOriginal Message:\t" + msgEventA.toString());
         String msgEventAString = gson.toJson(msgEventA);
@@ -279,20 +285,18 @@ public class MsgEventTest {
     }
 
     @Test
-    public void Test09_RPC() throws Exception {
+    public void Test09_RPC_and_Route() throws Exception {
         logger.info("RPC Test");
-        String[] src = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
-        CAddr source = new CAddr(src[0], src[1], src[2]);
-        String[] dst = new String[]{"test_dst_region", "test_dst_agent", "test_dst_plugin"};
-        CAddr destination = new CAddr(dst[0], dst[1], dst[2]);
+        List<String> expected_route = new ArrayList<>();
+        CAddr source = new CAddr("test_src_region", "test_src_agent", "test_src_plugin");
+        CAddr destination = new CAddr("test_dst_region", "test_dst_agent", "test_dst_plugin");
         Gson gson = new Gson();
         Map<String, MsgEvent> rpcMap = new HashMap<>();
         // Generate Message
-        MsgEvent msgEventA = new MsgEvent(new CAddr(dst[0], dst[1], dst[2]));
+        MsgEvent msgEventA = new MsgEvent(MsgEvent.Type.INFO, source, destination);
         logger.info("\tInitial message:\t\t{}", msgEventA);
         // "Send" message as RPC (set RPC flags)
-        String callId = java.util.UUID.randomUUID().toString();
-        msgEventA.setRPC(new CAcallId);
+        String callId = msgEventA.makeRPC();
         logger.info("\tMessage w/ RPC:\t\t\t{}", msgEventA);
         // Put message on a queue
         final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
@@ -302,6 +306,11 @@ public class MsgEventTest {
         final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         final Queue queue = session.createTemporaryQueue();
         final MessageProducer producer = session.createProducer(queue);
+        Assert.assertEquals(msgEventA.getTTL(), 0);
+        msgEventA.addRouteEntry(msgEventA.getSource(), 1);
+        Assert.assertEquals(msgEventA.getTTL(), 1);
+        expected_route.add(source + " : " + 1);
+        Assert.assertEquals(msgEventA.getRoute(), expected_route);
         final TextMessage messageA = session.createTextMessage(gson.toJson(msgEventA));
         producer.send(messageA);
         // Collect message from queue
@@ -313,6 +322,10 @@ public class MsgEventTest {
         // Set Return
         msgEventB.setReturn();
         logger.info("\tMessage w/ SetReturn():\t{}", msgEventB);
+        msgEventB.addRouteEntry(msgEventB.getSource(), 1);
+        expected_route.add(destination + " : " + 1);
+        Assert.assertEquals(msgEventB.getTTL(), 2);
+        Assert.assertEquals(msgEventB.getRoute(), expected_route);
         // Put message back on queue
         final TextMessage messageC = session.createTextMessage(gson.toJson(msgEventB));
         producer.send(messageC);
@@ -320,19 +333,20 @@ public class MsgEventTest {
         final TextMessage messageD = (TextMessage) consumer.receive();
         Assert.assertNotNull(messageD);
         MsgEvent msgEventD = gson.fromJson(messageD.getText(), MsgEvent.class);
+        Assert.assertEquals(msgEventD.getTTL(), 2);
+        Assert.assertEquals(msgEventD.getRoute(), expected_route);
         logger.info("\tReturned Message:\t\t{}", msgEventD);
-        //msg.setParam("callId-" + region + "-" + agent + "-" + pluginID, callId);
-        String oldCallId = msgEventD.getParam("callId-" + src[0] + "-" + src[1] + "-" + src[2]);
+        String oldCallId = msgEventD.getParam("callId-" + source.getRegion() + "-" + source.getAgent() + "-" + source.getPlugin());
         Assert.assertNotNull(oldCallId);
         Assert.assertEquals(callId, oldCallId);
         // Put in "RPC Map"
-        rpcMap.put(msgEventD.getRpcCallID(), msgEventD);
+        rpcMap.put(msgEventD.getRPCID(), msgEventD);
         // Check for RPC to match expected values
         MsgEvent msgEventE = rpcMap.get(callId);
         Assert.assertNotNull(msgEventE);
         logger.info("\tRPC Result:\t\t\t\t{}", msgEventE);
         Assert.assertEquals(msgEventD, msgEventE);
-        Assert.assertEquals(new CAddr(src[0], src[1], src[2]), msgEventE.getDestination());
-        Assert.assertEquals(new CAddr(src[0], src[1], src[2]), msgEventE.getRPCCaller());
+        Assert.assertEquals(source, msgEventE.getDestination());
+        Assert.assertEquals(source, msgEventE.getRPCOrigin());
     }
 }

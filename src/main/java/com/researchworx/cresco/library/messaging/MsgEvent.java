@@ -4,11 +4,12 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -16,25 +17,22 @@ import java.util.zip.GZIPOutputStream;
  * The {@code MsgEvent} class is the core unit of data transmission in the
  * Cresco framework. The simpliest way to instantiate the class is with:
  * <blockquote><pre>
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent--">MsgEvent</a>();
+ *     MsgEvent msgEvent = new MsgEvent();
  * </pre></blockquote>
  * A {@code MsgEvent} object contains addresses corresponding to the source, destination,
  * and in the case of Remote Procedure Call (RPC) messages, the message originator. Other constructors
  * define the message type, destination, and initial parameters if known:
  * <blockquote><pre>
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(new <a href="CAddr.html">CAddr</a>(...));
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>);
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>(...));
- *     MsgEvent msgEvent = new <a href="MsgEvent.html#MsgEvent-com.researchworx.cresco.library.messaging.MsgEvent.Type-com.researchworx.cresco.library.messaging.CAddr-java.util.Map-">MsgEvent</a>(<a href="MsgEvent.Type.html">MsgEvent.Type</a>, new <a href="CAddr.html">CAddr</a>(...), Map&lt;String, String&gt;);
+ *     MsgEvent msgEvent = new MsgEvent(MsgEvent.Type, new CAddr(...), new CAddr(...));
  * </pre></blockquote>
  * Like other messaging protocols, {@code MsgEvent} contains a message payload in the form of a
  * Java Map. Payload access works as follows:
  * <blockquote><pre>
- *     msgEvent.<a href="MsgEvent.html#setParam-java.lang.String-java.lang.String-">setParam</a>("param_name", "param_value");  // sets a payload value
- *     msgEvent.<a href="MsgEvent.html#setParams-java.util.Map-">setParams</a>(Map);                         // replaces all payload values with Map values
- *     msgEvent.<a href="MsgEvent.html#addParams-java.util.Map-">addParams</a>(Map);                         // adds all Map values to existing payload values
- *     msgEvent.<a href="MsgEvent.html#getParam-java.lang.String-">getParam</a>("param_name");                 // retrieves a payload value
- *     msgEvent.<a href="MsgEvent.html#getParams--">getParams</a>();                            // returns a Map of all payload values
+ *     msgEvent.setParam("param_name", "param_value");  // sets a payload value
+ *     msgEvent.setParams(Map&lt;String, String&gt;);         // replaces all payload values with Map values
+ *     msgEvent.addParams(Map&lt;String, String&gt;);         // adds all Map values to existing payload values
+ *     msgEvent.getParam("param_name");                 // retrieves a payload value
+ *     msgEvent.getParams();                            // returns a Map of all payload values
  * </pre></blockquote>
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
@@ -55,22 +53,24 @@ public class MsgEvent {
      * MsgEvent scopes enumeration
      */
     public enum Scope {
-        GLOBAL, REGIONAL, AGENT, CONTROLLER, PLUGIN, SELF
+        GLOBAL, REGIONAL, CONTROLLER, AGENT, PLUGIN, SELF
     }
 
     /** Type of message */
     private Type type = Type.INFO;
     /** Scope of message */
-    private Scope scope = Scope.PLUGIN;
+    private Scope scope = Scope.GLOBAL;
     /** Source address of message */
     private CAddr source = null;
     /** Destination address of message */
     private CAddr destination = null;
-    /** RPC origination address of message (if RPC) */
-    private CAddr rpcCaller = null;
-    /** RPC call ID for message identification */
-    private String rpcCallID = null;
-    /** Custom message parameters */
+    /** Point of origin of remote procedure call */
+    private CAddr rpcOrigin = null;
+    /** Remote procedure call identifier */
+    private String rpcID = null;
+    /** Route history of message */
+    private List<String> route = new ArrayList<>();
+    /** Message Payload */
     private Map<String, String> params = new HashMap<>();
 
     /**
@@ -80,41 +80,22 @@ public class MsgEvent {
 
     /**
      * Constructor
-     * @param destination   Message destination address
-     */
-    public MsgEvent(CAddr source, CAddr destination) {
-        this();
-        setSource(source);
-        setDestination(destination);
-    }
-
-    /**
-     * Constructor
-     * @param destination   Message destination address
-     * @param params        Map of custom message parameters
-     */
-    public MsgEvent(CAddr source, CAddr destination, Map<String, String> params) {
-        this(source, destination);
-        setParams(params);
-    }
-
-    /**
-     * Constructor
      * @param type          Message type
      */
     public MsgEvent(Type type) {
-        this();
         setType(type);
     }
 
     /**
      * Constructor
      * @param type          Message type
+     * @param source        Message source address
      * @param destination   Message destination address
      */
     public MsgEvent(Type type, CAddr source, CAddr destination) {
-        this(source, destination);
         setType(type);
+        setSource(source);
+        setDestination(destination);
     }
 
     /**
@@ -128,129 +109,33 @@ public class MsgEvent {
         setParams(params);
     }
 
-    /*/**
+    /**
      * Constructor
-     * @param dstRegion     Destination region name
-     */
-    /*public MsgEvent(String dstRegion) {
-        this();
-        setDestination(dstRegion);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param dstRegion     Destination region name
-     * @param dstAgent      Destination agent name
-     */
-    /*public MsgEvent(String dstRegion, String dstAgent) {
-        this();
-        setDestination(dstRegion, dstAgent);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param dstRegion     Destination region name
-     * @param dstAgent      Destination agent name
-     * @param dstPlugin     Destination plugin name
-     */
-    /*public MsgEvent(String dstRegion, String dstAgent, String dstPlugin) {
-        this();
-        setDestination(dstRegion, dstAgent, dstPlugin);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param type          (MsgEvent.Type) Message type
-     * @param dstRegion     Destination region name
-     */
-    /*public MsgEvent(Type type, String dstRegion) {
-        this();
-        setType(type);
-        setDestination(dstRegion);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param type          (MsgEvent.Type) Message type
-     * @param dstRegion     Destination region name
-     * @param dstAgent      Destination agent name
-     */
-    /*public MsgEvent(Type type, String dstRegion, String dstAgent) {
-        this();
-        setType(msgType);
-        setDestination(dstRegion, dstAgent);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param type          (MsgEvent.Type) Message type
-     * @param dstRegion     Destination region name
-     * @param dstAgent      Destination agent name
-     * @param dstPlugin     Destination plugin name
-     */
-    /*public MsgEvent(Type type, String dstRegion, String dstAgent, String dstPlugin) {
-        this();
-        setType(msgType);
-        setDestination(dstRegion, dstAgent, dstPlugin);
-    }*/
-
-    /*/**
-     * Constructor (Deprecated)
      * @param type          Message type
-     * @param dstRegion     Unused region name
-     * @param dstAgent      Unused agent name
-     * @param dstPlugin     Unused plugin name
+     * @param destination   Destination address
      * @param msgBody       Message body parameter
      */
-    /*@Deprecated
+    @Deprecated
+    public MsgEvent(Type type, CAddr source, CAddr destination, String msgBody) {
+        this(type, source, destination);
+        setParam("msg", msgBody);
+    }
+
+    /**
+     * Constructor
+     * WARNING: A message source address must be declared manually after this instantiation method
+     * @param type          Message type
+     * @param dstRegion     Destination region name
+     * @param dstAgent      Destination agent name
+     * @param dstPlugin     Destination plugin name
+     * @param msgBody       Message body parameter
+     */
+    @Deprecated
     public MsgEvent(Type type, String dstRegion, String dstAgent, String dstPlugin, String msgBody) {
-        this();
         setType(type);
         setDestination(dstRegion, dstAgent, dstPlugin);
         setParam("msg", msgBody);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param type          (MsgEvent.Type) Message type
-     * @param dstRegion     Unused region name
-     * @param params        Message custom parameters
-     */
-    /*public MsgEvent(Type type, String dstRegion, Map<String, String> params) {
-        this();
-        setType(type);
-        setDestination(dstRegion);
-        setParams(params);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param msgType       (MsgEvent.Type) Message type
-     * @param dstRegion     Unused region name
-     * @param dstAgent      Unused agent name
-     * @param params        Message custom parameters
-     */
-    /*public MsgEvent(Type msgType, String dstRegion, String dstAgent, Map<String, String> params) {
-        this();
-        setType(msgType);
-        setDestination(dstRegion, dstAgent);
-        setParams(params);
-    }*/
-
-    /*/**
-     * Constructor
-     * @param msgType       (MsgEvent.Type) Message type
-     * @param dstRegion     Unused region name
-     * @param dstAgent      Unused agent name
-     * @param dstPlugin     Unused plugin name
-     * @param params        Message custom parameters
-     */
-    /*public MsgEvent(Type msgType, String dstRegion, String dstAgent, String dstPlugin, Map<String, String> params) {
-        this();
-        setType(msgType);
-        setDestination(dstRegion, dstAgent, dstPlugin);
-        setParams(params);
-    }*/
+    }
 
     /**
      * Message source getter
@@ -384,7 +269,6 @@ public class MsgEvent {
      * @param address   Message destination address
      */
     public void setDestination(CAddr address) {
-        setScope(Scope.GLOBAL);
         if (address == null)
             return;
         if (address.getRegion() != null) {
@@ -439,14 +323,27 @@ public class MsgEvent {
     }
 
     /**
-     * Set Remote Procedure Call parameters
-     * @param caller    RPC initiator address
-     * @param callID    RPC identifier
+     * Convert MsgEvent to RPC message
      */
-    public void setRPC(CAddr caller, String callID) {
-        setRPCCaller(caller);
-        setRPCCallID(callID);
-        setParam("callId-" + caller.getRegion() + "-" + caller.getAgent() + "-" + caller.getPlugin(), callID);
+    public String makeRPC() throws Exception {
+        if (getSource() == null)
+            throw new Exception("Source must be set before message can be converted to RPC");
+        setRPCOrigin(getSource());
+        String rpcID = java.util.UUID.randomUUID().toString();
+        setRPCID(rpcID);
+        setParam("callId-" + getSourceRegion() + "-" + getSourceAgent() + "-" + getSourcePlugin(), getRPCID());
+        return getRPCID();
+    }
+
+    /**
+     * Set Remote Procedure Call parameters
+     * @param origin        RPC initiator address
+     * @param identifier    RPC identifier
+     */
+    public void setRPC(CAddr origin, String identifier) {
+        setRPCOrigin(origin);
+        setRPCID(identifier);
+        setParam("callId-" + origin.getRegion() + "-" + origin.getAgent() + "-" + origin.getPlugin(), identifier);
     }
 
     /**
@@ -454,16 +351,16 @@ public class MsgEvent {
      * @return  Address of RPC initiator
      */
     @XmlJavaTypeAdapter(CAddrAdapter.class)
-    public CAddr getRPCCaller() {
-        return rpcCaller;
+    public CAddr getRPCOrigin() {
+        return rpcOrigin;
     }
 
     /**
      * RPC initiator setter
-     * @param rpcCaller    Address of RPC initiator
+     * @param rpcOrigin    Address of RPC initiator
      */
-    public void setRPCCaller(CAddr rpcCaller) {
-        this.rpcCaller = rpcCaller;
+    public void setRPCOrigin(CAddr rpcOrigin) {
+        this.rpcOrigin = rpcOrigin;
     }
 
     /**
@@ -471,16 +368,16 @@ public class MsgEvent {
      * @return  RPC identifier
      */
     @XmlElement
-    public String getRpcCallID() {
-        return rpcCallID;
+    public String getRPCID() {
+        return rpcID;
     }
 
     /**
      * RPC identifier setter
-     * @param rpcCallID  RPC identifier
+     * @param rpcID  RPC identifier
      */
-    public void setRPCCallID(String rpcCallID) {
-        this.rpcCallID = rpcCallID;
+    public void setRPCID(String rpcID) {
+        this.rpcID = rpcID;
     }
 
     /**
@@ -579,6 +476,18 @@ public class MsgEvent {
         this.scope = scope;
     }
 
+    public List<String> getRoute() {
+        return route;
+    }
+
+    public void addRouteEntry(CAddr hop, int routeCase) {
+        this.route.add(hop + " : " + routeCase);
+    }
+
+    public int getTTL() {
+        return route.size();
+    }
+
     /**
      * Message payload getter
      * @return      Message payload
@@ -672,10 +581,10 @@ public class MsgEvent {
         MsgEvent msgEvent = (MsgEvent)o;
         return getType().equals(msgEvent.getType()) &&
                 getScope().equals(msgEvent.getScope()) &&
-                ((getRPCCaller() == null && msgEvent.getRPCCaller() == null) ||
-                        getRPCCaller().equals(msgEvent.getRPCCaller())) &&
-                ((getRpcCallID() == null && msgEvent.getRpcCallID() == null) ||
-                        getRpcCallID().equals(msgEvent.getRpcCallID())) &&
+                ((getRPCOrigin() == null && msgEvent.getRPCOrigin() == null) ||
+                        getRPCOrigin().equals(msgEvent.getRPCOrigin())) &&
+                ((getRPCID() == null && msgEvent.getRPCID() == null) ||
+                        getRPCID().equals(msgEvent.getRPCID())) &&
                 ((getSource() == null && msgEvent.getSource() == null) ||
                         getSource().equals(msgEvent.getSource())) &&
                 ((getDestination() == null && msgEvent.getDestination() == null) ||
@@ -693,8 +602,10 @@ public class MsgEvent {
                 "type=" + getType() +
                 ", scope=" + getScope() +
                 ", source=" + getSource() +
-                ", rpc_caller=" + getRPCCaller() + ", rpc_callid=" + getRpcCallID() +
                 ", destination=" + getDestination() +
+                ", rpc_caller=" + getRPCOrigin() + ", rpc_callid=" + getRPCID() +
+                ", ttl=" + getTTL() +
+                ", route=" + getRoute() +
                 ", params=" + getParams() +
                 "}";
     }

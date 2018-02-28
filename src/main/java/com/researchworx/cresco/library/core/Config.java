@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
  * @author Caylin Hickey
  * @since 0.1.0
  */
+@Deprecated
 public class Config {
     /** Environmental Variable Prefix */
     private static final String ENV_PREFIX = "CRESCO_";

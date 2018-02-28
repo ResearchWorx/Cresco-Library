@@ -17,13 +17,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CLoggerTest {
     private final Logger logger = LoggerFactory.getLogger(CLoggerTest.class);
+    CAddr source = new CAddr("test_src_region", "test_src_agent", "test_src_plugin");
+    CAddr destination = new CAddr("test_dst_region", "test_dst_agent", "test_dst_plugin");
     FakeAgent fakeAgent;
     BlockingQueue<MsgEvent> msgOutQueue;
 
     @Before
     public void setUp() {
-        String[] address = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
-        MsgEvent.setMyAddress(new CAddr(address[0], address[1], address[2]));
         msgOutQueue = new LinkedBlockingQueue<>();
         fakeAgent = new FakeAgent(msgOutQueue);
         new Thread(fakeAgent).start();
@@ -31,7 +31,7 @@ public class CLoggerTest {
 
     @Test
     public void Test1_FakeAgent() {
-        MsgEvent msgEvent = new MsgEvent(MsgEvent.Type.LOG);
+        MsgEvent msgEvent = new MsgEvent(MsgEvent.Type.LOG, source, destination);
         msgEvent.setParam("log_message", "Test Log Message");
         msgEvent.setParam("log_class", CLoggerTest.class.getSimpleName());
         msgEvent.setParam("log_full_class", CLoggerTest.class.getCanonicalName());
@@ -41,14 +41,14 @@ public class CLoggerTest {
     }
 
     @Test
-    public void Test2_Constructors() {
-        logger.info("Blah2");
+    public void Test2_Logger() {
+        CLogger cLogger = new CLogger(msgOutQueue);
+        cLogger.info("Test CLogger Message");
     }
 
     @After
     public void tearDown() {
         fakeAgent.stop();
-        MsgEvent.removeMyAddress();
     }
 
     class FakeAgent implements Runnable {

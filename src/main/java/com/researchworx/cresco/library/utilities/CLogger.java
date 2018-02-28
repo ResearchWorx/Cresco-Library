@@ -1,6 +1,5 @@
 package com.researchworx.cresco.library.utilities;
 
-import com.researchworx.cresco.library.messaging.CAddr;
 import com.researchworx.cresco.library.messaging.MsgEvent;
 
 import java.util.Date;
@@ -12,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Caylin Hickey
  * @since 0.1.0
  */
+@Deprecated
 public class CLogger {
     public enum Level {
         None(-1), Error(0), Warn(1), Info(2), Debug(4), Trace(8);
@@ -97,7 +97,8 @@ public class CLogger {
 
     public void log(String logMessage, Level level) {
         MsgEvent toSend = new MsgEvent(MsgEvent.Type.LOG);
-        toSend.setDestination(new CAddr(MsgEvent.getMyAddress().getRegion()));
+        // ToDo: Rework to use Static CState class after implementation
+        //toSend.setDestination(new CAddr(MsgEvent.getMyAddress().getRegion()));
         toSend.setParam("log_message", logMessage);
         if (issuingClass != null) {
             toSend.setParam("log_class", issuingClass.getSimpleName());
