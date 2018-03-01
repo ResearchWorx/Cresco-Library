@@ -36,7 +36,7 @@ import java.util.zip.GZIPOutputStream;
  * </pre></blockquote>
  * @author V.K. Cody Bumgardner
  * @author Caylin Hickey
- * @see com.researchworx.cresco.library.messaging.CAddr
+ * @see CAddr
  * @since 0.1.0
  */
 @XmlRootElement

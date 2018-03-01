@@ -2,7 +2,7 @@ package com.researchworx.cresco.library.messaging;
 
 /**
  * The {@code CAddr} class represents the standard Cresco address used in the routing of
- * <a href="MsgEvent.html">{@code MsgEvent}</a> messages. Cresco address are comprised of:
+ * {@code MsgEvent} messages. Cresco address are comprised of:
  * <ul>
  *     <li><b>Region</b> - The Cresco region associated with this address</li>
  *     <li><b>Agent</b> - The Cresco agent associated with this address</li>
@@ -10,13 +10,14 @@ package com.researchworx.cresco.library.messaging;
  * </ul><p>
  * It is instantiated with either an existing {@code CAddr} object or {@code String} for the applicable address sections:
  * <blockquote><pre>
- *     new <a href="CAddr.html#CAddr-com.researchworx.cresco.library.messaging.CAddr-">CAddr</a>(CAddr)
- *     new <a href="CAddr.html#CAddr-java.lang.String-">CAddr</a>("region")
- *     new <a href="CAddr.html#CAddr-java.lang.String-java.lang.String-">CAddr</a>("region", "agent")
- *     new <a href="CAddr.html#CAddr-java.lang.String-java.lang.String-java.lang.String-">CAddr</a>("region", "agent", "plugin")
+ *     new CAddr(CAddr)
+ *     new CAddr("region")
+ *     new CAddr("region", "agent")
+ *     new CAddr("region", "agent", "plugin")
  * </pre></blockquote>
  * @author Caylin Hickey
- * @see com.researchworx.cresco.library.messaging.MsgEvent
+ * @author V.K. Cody Bumgardner
+ * @see MsgEvent
  * @since 0.4.2
  */
 public class CAddr {
