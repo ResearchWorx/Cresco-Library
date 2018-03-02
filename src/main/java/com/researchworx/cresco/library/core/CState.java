@@ -81,6 +81,12 @@ public class CState {
         }
     }
 
+    public static void removeRegionalController() {
+        synchronized (regionalControllerLock) {
+            regionalController = null;
+        }
+    }
+
     public static void setRegionalController(CAddr address) {
         synchronized (regionalControllerLock) {
             regionalController = new CAddr(address);
@@ -90,6 +96,12 @@ public class CState {
     public static CAddr getGlobalController() {
         synchronized (globalControllerLock) {
             return globalController;
+        }
+    }
+
+    public static void removeGlobalController() {
+        synchronized (globalControllerLock) {
+            globalController = null;
         }
     }
 
@@ -105,5 +117,15 @@ public class CState {
 
     public static void setConnectedState(Boolean state) {
         isConnected = state;
+    }
+
+    public static String print() {
+        StringBuilder s = new StringBuilder("{");
+        s.append("local_region="); s.append(getLocalRegion()); s.append(", ");
+        s.append("local_agent="); s.append(getLocalAgent()); s.append(", ");
+        s.append("is_connected="); s.append(getConnectedState()); s.append(", ");
+        s.append("regional_controller="); s.append(getRegionalController()); s.append(", ");
+        s.append("global_controller="); s.append(getGlobalController());
+        return s.append("}").toString();
     }
 }

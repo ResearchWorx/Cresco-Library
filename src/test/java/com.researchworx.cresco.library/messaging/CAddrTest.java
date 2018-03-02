@@ -13,6 +13,7 @@ public class CAddrTest {
 
     @Test
     public void Test1_Equality() {
+        logger.info("Equality Test");
         String[] address = new String[]{"test_src_region", "test_src_agent", "test_src_plugin"};
         CAddr cAddrA = new CAddr(address[0]);
         CAddr cAddrB = new CAddr(address[0]);

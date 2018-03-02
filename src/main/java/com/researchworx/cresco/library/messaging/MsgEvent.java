@@ -101,6 +101,7 @@ public class MsgEvent {
     /**
      * Constructor
      * @param type          Message type
+     * @param source        Message source address
      * @param destination   Message destination address
      * @param params        Map of custom message parameters
      */
@@ -112,6 +113,7 @@ public class MsgEvent {
     /**
      * Constructor
      * @param type          Message type
+     * @param source        Message source address
      * @param destination   Destination address
      * @param msgBody       Message body parameter
      */
@@ -324,6 +326,8 @@ public class MsgEvent {
 
     /**
      * Convert MsgEvent to RPC message
+     * @return  The Remote Procedure Call identifier assigned to this call
+     * @throws Exception    Thrown if source does not exist yet
      */
     public String makeRPC() throws Exception {
         if (getSource() == null)
@@ -333,6 +337,14 @@ public class MsgEvent {
         setRPCID(rpcID);
         setParam("callId-" + getSourceRegion() + "-" + getSourceAgent() + "-" + getSourcePlugin(), getRPCID());
         return getRPCID();
+    }
+
+    /**
+     * Check if message is a Remote Procedure Call
+     * @return  Whether this message is a Remote Procedure Call or not
+     */
+    public boolean isRPC() {
+        return (getRPCOrigin() != null);
     }
 
     /**
@@ -598,16 +610,20 @@ public class MsgEvent {
      */
     @Override
     public String toString() {
-        return "{" +
-                "type=" + getType() +
-                ", scope=" + getScope() +
-                ", source=" + getSource() +
-                ", destination=" + getDestination() +
-                ", rpc_caller=" + getRPCOrigin() + ", rpc_callid=" + getRPCID() +
-                ", ttl=" + getTTL() +
-                ", route=" + getRoute() +
-                ", params=" + getParams() +
-                "}";
+        StringBuilder s = new StringBuilder("{");
+        s.append("type="); s.append(getType()); s.append(", ");
+        s.append("scope="); s.append(getScope()); s.append(", ");
+        s.append("source="); s.append(getSource()); s.append(", ");
+        s.append("destination="); s.append(getDestination()); s.append(", ");
+        s.append("is_rpc="); s.append(isRPC()); s.append(", ");
+        if (isRPC()) {
+            s.append("rpc_origin="); s.append(getRPCOrigin()); s.append(", ");
+            s.append("rpc_id="); s.append(getRPCID()); s.append(", ");
+        }
+        s.append("ttl="); s.append(getTTL()); s.append(", ");
+        s.append("route="); s.append(getRoute()); s.append(", ");
+        s.append("params="); s.append(getParams());
+        return s.append("}").toString();
     }
 
     /**
